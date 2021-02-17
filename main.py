@@ -1,12 +1,12 @@
 import PySimpleGUI as sg
-
+from settings_page import window2 as settingsWindow
 
 info_column = [
     [
         sg.Text("APP Status"),
     ],
     [
-        sg.Text("Settings"),
+        sg.Text("Settings",key="-settings-", enable_events=True),
     ],
     [
         sg.Text("About"),
@@ -42,6 +42,10 @@ while True:
     # End program if user closes window or
     # presses the OK button
     print(event, values)
+    if(event == "-settings-"):
+        window.close()
+        settingsWindow.read()
+    if
     if event == "OK" or event == sg.WIN_CLOSED:
         break
 
