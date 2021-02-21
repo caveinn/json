@@ -1,5 +1,31 @@
 import PySimpleGUI as sg
-from settings_page import window2 as settingsWindow
+from general_settings_page import window2 as general_settingsWindow
+# from incoming_settings_page import window2 as incoming_settingsWindow
+# from json_settings_page import window2 as json_settingsWindow
+# from delivery_settings_page import window2 as delivery_settingsWindow
+# from after_effects_settings_page import window2 as effects_settingsWindow
+from email_settings_page import window2 as email_settingsWindow
+
+
+# class WindowStack():
+#     stack = []
+#     def __init__(self, window = None):
+#          '''
+#             params:
+#                 - windows= a window to add to stack
+#          '''
+#          stack = [window]
+#     def append(window):
+#         '''
+#         params:
+#             - window= a window to add to stack
+#         '''
+#         stack.append(window)
+
+#     def get_window():
+
+#         return stack[-1] if stack else None
+
 
 info_column = [
     [
@@ -34,19 +60,36 @@ layout = [
 ]
 
 # Create the window
-window = sg.Window("Support App", layout)
-
+window = sg.Window("Support App", layout, finalize=True)
+# windowStack = WindowStack()
 # Create an event loop
 while True:
-    event, values = window.read()
-    # End program if user closes window or
-    # presses the OK button
-    print(event, values)
-    if(event == "-settings-"):
-        window.close()
-        settingsWindow.read()
-    if
-    if event == "OK" or event == sg.WIN_CLOSED:
-        break
 
-window.close()
+    # event, values = window.read()
+    # End program if user closes window or
+    # presse
+
+    # if(event == "-settings-"):
+    #    event, values = general_settingsWindow.read()
+    general_settingsWindow.finalize =True
+
+    window, event, values = sg.read_all_windows()
+    print(event, values)
+    if window == sg.WIN_CLOSED:     # if all windows were closed
+        break
+    if event == sg.WIN_CLOSED or event == 'Exit':
+        window.close()
+        if window == email_settingsWindow:       # if closing win 2, mark as closed
+            window2 = None
+        elif window == email_settingsWindow:     # if closing win 1, mark as closed
+            window1 = None
+    # elif event == 'Reopen':
+    #     if not window2:
+    #         window2 = make_win2()
+    #         window2.move(window1.current_location()[0], window1.current_location()[1] + 220)
+    # elif event == '-IN-':
+    #     output_window = window2 if window == window1 else window1
+    #     if output_window:           # if a valid window, then output to it
+    #         output_window['-OUTPUT-'].update(values['-IN-'])
+    #     else:
+    #             window['-OUTPUT-'].update('Other window is closed')
