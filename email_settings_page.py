@@ -67,6 +67,7 @@ navigator_column = [
     #     "", key="-autostart-", enable_events=True)],
     # [sg.Text(size=(40, 1), key="-TOUT-")],
     # [sg.Image(key="-IMAGE-")],
+    [sg.Text(pad=((405,5),(0)))],
 
 ]
 # ----- Full layout -----

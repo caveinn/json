@@ -26,14 +26,13 @@ info_column = [
 ]
 
 navigator_column = [
-    [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"],)],
-    [sg.Text("FTP Server:", pad=((22, 5),(5,5))), sg.I(size=(30,1))],
-    [sg.Text("Port:", pad=((57, 5),(5,5))),sg.I(size=(30,1))],
-    [sg.Text("Username:", pad=((30, 5),(5,5))), sg.I(size=(30,1))],
-    [sg.Text("Password:", pad=((32, 5),(5,5))), sg.I(size=(30,1))],
+    [sg.Text("Upload Logo: "), sg.Text("FILENAME SHOW HERE.jpg", size=(30,1)), sg.B("Select") ],
+    [sg.Text("Upload Icon: ",pad=((10,5),(5))), sg.Text("FILENAME SHOW HERE.jpg", size=(30,1)), sg.B("select")],
+    [sg.Text(pad=((405,5),(0, 170)))],
+    [sg.Text("Availability of File online:", pad=((10, 5),(5,5))),sg.I(size=(10,1)), sg.T("Days")],
+    [sg.Text("Availability of Master Files:", pad=((0, 5),(5,5))),sg.I(size=(10,1)), sg.T("Days")],
+    [sg.Text("Sync Intervall FTP:", pad=((35, 5),(5,5))),sg.I(size=(10,1)), sg.T("Minutes")],
     [sg.T(pad=((0,400),(70,0)))],
-    [sg.T("Campaing JSON Path:"),sg.T("//show path here"), sg.B("select")],
-    [sg.T("Campaing Ads Path:"),sg.T("//show path here"), sg.B("select")],
 
 ]
 # ----- Full layout -----

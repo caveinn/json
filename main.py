@@ -81,6 +81,11 @@ while True:
         window = delivery_settingsWindow
         window.finalize()
         window.un_hide()
+    if event=="-incoming-":
+        window.hide()
+        window = incoming_settingsWindow
+        window.finalize()
+        window.un_hide()
     if event =="Back":
         window.hide()
         window = mainwindow

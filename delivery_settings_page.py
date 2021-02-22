@@ -26,14 +26,14 @@ info_column = [
 ]
 
 navigator_column = [
-    [sg.Text("Upload Logo: "), sg.Button("select")],
-    [sg.Text("Upload Icon"), sg.Button("select")],
-    [sg.Text("Last Sync Campaign JSON")],
-    [sg.Text("Last Sync /Ads folder", pad=((6,400),(0,400) ))],
-    [sg.Text("Sart /stop services:"), sg.Button("stop")],
-    [sg.Text("Automatically start at login"), sg.Checkbox("", key="-autostart-", enable_events=True)],
-    # [sg.Text(size=(40, 1), key="-TOUT-")],
-    # [sg.Image(key="-IMAGE-")],
+    [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"],)],
+    [sg.Text("FTP Server:", pad=((22, 5),(5,5))), sg.I(size=(30,1))],
+    [sg.Text("Port:", pad=((57, 5),(5,5))),sg.I(size=(30,1))],
+    [sg.Text("Username:", pad=((30, 5),(5,5))), sg.I(size=(30,1))],
+    [sg.Text("Password:", pad=((32, 5),(5,5))), sg.I(size=(30,1))],
+    [sg.T(pad=((0,400),(70,0)))],
+    [sg.T("Campaing JSON Path:"),sg.T("//show path here"), sg.B("select")],
+    [sg.T("Campaing Ads Path:"),sg.T("//show path here"), sg.B("select")],
 
 ]
 # ----- Full layout -----
@@ -41,7 +41,7 @@ layout = [
     [
         sg.Column(info_column,vertical_alignment="t"),
         sg.VSeperator(),
-        sg.Column(navigator_column),
+        sg.Column(navigator_column, vertical_alignment="t"),
     ]
 ]
 
