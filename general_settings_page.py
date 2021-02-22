@@ -1,8 +1,9 @@
 
 import PySimpleGUI as sg
+sg.theme('Dark Grey 5')
 info_column = [
     [
-        sg.Text("General", enable_events=True, key="-general-"),
+        sg.Text("General", background_color="darkgrey", enable_events=True, key="-general-"),
 
     ],
     [
@@ -31,7 +32,7 @@ navigator_column = [
     [sg.Text(pad=((405,5),(0, 170)))],
     [sg.Text("Availability of File online:", pad=((10, 5),(5,5))),sg.I(size=(10,1)), sg.T("Days")],
     [sg.Text("Availability of Master Files:", pad=((0, 5),(5,5))),sg.I(size=(10,1)), sg.T("Days")],
-    [sg.Text("Sync Intervall FTP:", pad=((35, 5),(5,5))),sg.I(size=(10,1)), sg.T("Minutes")],
+    [sg.Text("Sync Interval FTP:", pad=((37, 5),(5,5))),sg.I(size=(10,1)), sg.T("Minutes")],
     [sg.T(pad=((0,400),(70,0)))],
 
 ]

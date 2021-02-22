@@ -1,5 +1,6 @@
 
 import PySimpleGUI as sg
+sg.theme('Dark Grey 5')
 info_column = [
     [
         sg.Text("General", enable_events=True, key="-general-"),
@@ -15,7 +16,7 @@ info_column = [
         sg.Text("After Effects", enable_events=True, key="-AE-"),
     ],
     [
-        sg.Text("Server Incoming", enable_events=True, key="-incoming-"),
+        sg.Text("Server Incoming", background_color="darkgrey", enable_events=True, key="-incoming-"),
     ],
     [
         sg.Text("Server delivery", enable_events=True, key="-delivery-"),

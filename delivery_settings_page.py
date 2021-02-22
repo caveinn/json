@@ -1,5 +1,6 @@
 
 import PySimpleGUI as sg
+sg.theme('Dark Grey 5')
 info_column = [
     [
         sg.Text("General", enable_events=True, key="-general-"),
@@ -18,7 +19,7 @@ info_column = [
         sg.Text("Server Incoming", enable_events=True, key="-incoming-"),
     ],
     [
-        sg.Text("Server delivery", enable_events=True, key="-delivery-"),
+        sg.Text("Server delivery", background_color="darkgrey", enable_events=True, key="-delivery-"),
     ],
     [
         sg.B('Back', pad=((10,10),(250,0)))
@@ -32,8 +33,7 @@ navigator_column = [
     [sg.Text("Username:", pad=((30, 5),(5,5))), sg.I(size=(30,1))],
     [sg.Text("Password:", pad=((32, 5),(5,5))), sg.I(size=(30,1))],
     [sg.T(pad=((0,400),(70,0)))],
-    [sg.T("Campaing JSON Path:"),sg.T("//show path here"), sg.B("select")],
-    [sg.T("Campaing Ads Path:"),sg.T("//show path here"), sg.B("select")],
+    [sg.T("File Delivery Path:"), sg.I(size=(38,1))],
 
 ]
 # ----- Full layout -----

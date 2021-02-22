@@ -1,5 +1,6 @@
 
 import PySimpleGUI as sg
+sg.theme('Dark Grey 5')
 info_column = [
     [
         sg.Text("General", enable_events=True, key="-general-"),
@@ -9,7 +10,7 @@ info_column = [
         sg.Text("JSON/Ads", enable_events=True, key="-json-"),
     ],
     [
-        sg.Text("Email", enable_events=True, key="-email-"),
+        sg.Text("Email", background_color="darkgrey", enable_events=True, key="-email-"),
     ],
     [
         sg.Text("After Effects", enable_events=True, key="-AE-"),
@@ -47,7 +48,7 @@ navigator_column = [
             """
  Dear[fisrt name][last name]
 
- Your file to tge campaign [reference] is available for download at [file link]
+ Your file to the campaign [reference] is available for download at [file link]
 
  The link wil expire on [expiry date]
 
@@ -60,14 +61,13 @@ navigator_column = [
     [sg.T("SMTP server:", pad=((27,5),(10,10))), sg.I(size=(20,1)), sg.T("Port:"), sg.I(size=(9,1))],
     [sg.T("SMTP Username:", pad=((7,5),(10,10))), sg.I(size=(38,1))],
     [sg.T("SMTP Passord:",  pad=((18,5),(10,10))), sg.I(size=(30,1)), sg.B("Show")],
-    [sg.T("File Delivery Path:"), sg.I(size=(38,1))],
 
     # [sg.Text("Sart /stop services:"), sg.Button("stop")],
     # [sg.Text("Automatically start at login"), sg.Checkbox(
     #     "", key="-autostart-", enable_events=True)],
     # [sg.Text(size=(40, 1), key="-TOUT-")],
     # [sg.Image(key="-IMAGE-")],
-    [sg.Text(pad=((405,5),(0)))],
+    [sg.Text(pad=((405,5),(20)))],
 
 ]
 # ----- Full layout -----
