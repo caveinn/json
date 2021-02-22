@@ -1,30 +1,10 @@
 import PySimpleGUI as sg
 from general_settings_page import window2 as general_settingsWindow
-# from incoming_settings_page import window2 as incoming_settingsWindow
-# from json_settings_page import window2 as json_settingsWindow
-# from delivery_settings_page import window2 as delivery_settingsWindow
-# from after_effects_settings_page import window2 as effects_settingsWindow
+from incoming_settings_page import window2 as incoming_settingsWindow
+from json_settings_page import window2 as json_settingsWindow
+from delivery_settings_page import window2 as delivery_settingsWindow
+from after_effects_settings_page import window2 as effects_settingsWindow
 from email_settings_page import window2 as email_settingsWindow
-
-
-# class WindowStack():
-#     stack = []
-#     def __init__(self, window = None):
-#          '''
-#             params:
-#                 - windows= a window to add to stack
-#          '''
-#          stack = [window]
-#     def append(window):
-#         '''
-#         params:
-#             - window= a window to add to stack
-#         '''
-#         stack.append(window)
-
-#     def get_window():
-
-#         return stack[-1] if stack else None
 
 
 info_column = [
@@ -46,8 +26,6 @@ navigator_column = [
     [sg.Text("Last Sync /Ads folder", pad=((6,400),(0,400) ))],
     [sg.Text("Sart /stop services:"), sg.Button("stop")],
     [sg.Text("Automatically start at login"), sg.Checkbox("", key="-autostart-", enable_events=True)],
-    # [sg.Text(size=(40, 1), key="-TOUT-")],
-    # [sg.Image(key="-IMAGE-")],
 
 ]
 # ----- Full layout -----
@@ -60,36 +38,53 @@ layout = [
 ]
 
 # Create the window
-window = sg.Window("Support App", layout, finalize=True)
-# windowStack = WindowStack()
+mainwindow = sg.Window("Support App", layout)
+window = mainwindow
+# def showNewWindow(window, newWindow):
+#     window.hide()
+#     window = newWindow
+#     window.finalize()
+#     window.un_hide()
 # Create an event loop
 while True:
 
-    # event, values = window.read()
-    # End program if user closes window or
-    # presse
-
-    # if(event == "-settings-"):
-    #    event, values = general_settingsWindow.read()
-    general_settingsWindow.finalize =True
-
-    window, event, values = sg.read_all_windows()
+    event, values = window.read()
     print(event, values)
-    if window == sg.WIN_CLOSED:     # if all windows were closed
-        break
+    if event=="-settings-":
+        window.hide()
+        window = general_settingsWindow
+        window.finalize()
+        window.un_hide()
+        # showNewWindow(window, general_settingsWindow)
+    if event=="-general-":
+        window.hide()
+        window = general_settingsWindow
+        window.finalize()
+        window.un_hide()
+    if event=="-json-":
+        window.hide()
+        window = json_settingsWindow
+        window.finalize()
+        window.un_hide()
+    if event=="-email-":
+        window.hide()
+        window = email_settingsWindow
+        window.finalize()
+        window.un_hide()
+    if event=="-AE-":
+        window.hide()
+        window = effects_settingsWindow
+        window.finalize()
+        window.un_hide()
+    if event=="-delivery-":
+        window.hide()
+        window = delivery_settingsWindow
+        window.finalize()
+        window.un_hide()
+    if event =="Back":
+        window.hide()
+        window = mainwindow
+        window.un_hide()
     if event == sg.WIN_CLOSED or event == 'Exit':
         window.close()
-        if window == email_settingsWindow:       # if closing win 2, mark as closed
-            window2 = None
-        elif window == email_settingsWindow:     # if closing win 1, mark as closed
-            window1 = None
-    # elif event == 'Reopen':
-    #     if not window2:
-    #         window2 = make_win2()
-    #         window2.move(window1.current_location()[0], window1.current_location()[1] + 220)
-    # elif event == '-IN-':
-    #     output_window = window2 if window == window1 else window1
-    #     if output_window:           # if a valid window, then output to it
-    #         output_window['-OUTPUT-'].update(values['-IN-'])
-    #     else:
-    #             window['-OUTPUT-'].update('Other window is closed')
+        break

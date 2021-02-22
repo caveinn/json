@@ -2,23 +2,27 @@
 import PySimpleGUI as sg
 info_column = [
     [
-        sg.Text("General"),
+        sg.Text("General", enable_events=True, key="-general-"),
+
     ],
     [
-        sg.Text("JSON/Ads"),
+        sg.Text("JSON/Ads", enable_events=True, key="-json-"),
     ],
     [
-        sg.Text("Email"),
+        sg.Text("Email", enable_events=True, key="-email-"),
     ],
     [
-        sg.Text("After Effects"),
+        sg.Text("After Effects", enable_events=True, key="-AE-"),
     ],
     [
-        sg.Text("Server Incoming"),
+        sg.Text("Server Incoming", enable_events=True, key="-incoming-"),
     ],
     [
-        sg.Text("Server delivery"),
+        sg.Text("Server delivery", enable_events=True, key="-delivery-"),
     ],
+    [
+        sg.B('Back', pad=((10,10),(250,0)))
+    ]
 ]
 
 navigator_column = [
