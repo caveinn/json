@@ -7,6 +7,8 @@ from after_effects_settings_page import window2 as effects_settingsWindow
 from email_settings_page import window2 as email_settingsWindow
 
 sg.theme('Dark Grey 5')
+sg.theme_input_background_color("darkgrey")
+sg.theme_button_color(("white", "black"))
 info_column = [
     [
         sg.Text("APP Status", background_color="darkgrey"),

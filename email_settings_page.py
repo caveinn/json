@@ -1,29 +1,34 @@
 
 import PySimpleGUI as sg
 sg.theme('Dark Grey 5')
-info_column = [
-    [
-        sg.Text("General", enable_events=True, key="-general-"),
+sg.theme_input_background_color("darkgrey")
+sg.theme_button_color(("white", "black"))
+navigator_column = [
+    [sg.Col([[
+        sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
 
-    ],
-    [
-        sg.Text("JSON/Ads", enable_events=True, key="-json-"),
-    ],
-    [
-        sg.Text("Email", background_color="darkgrey", enable_events=True, key="-email-"),
-    ],
-    [
-        sg.Text("After Effects", enable_events=True, key="-AE-"),
-    ],
-    [
-        sg.Text("Server Incoming", enable_events=True, key="-incoming-"),
-    ],
-    [
-        sg.Text("Server delivery", enable_events=True, key="-delivery-"),
-    ],
-    [
-        sg.B('Back', pad=((10,10),(250,0)))
-    ]
+    ]],  expand_x=True, pad=((0, 0), (0, 0))), ],
+    [sg.Col([[
+        sg.Text("JSON/Ads", enable_events=True, key="-json-",pad=((20,5), (5,5))),
+    ]], expand_x=True, pad=((0, 0), (0, 0))), ],
+    [sg.Col([[
+        sg.Text("Email", background_color="darkgrey",
+                enable_events=True, key="-email-", pad=((20,5), (5,5))),
+    ]], background_color="darkgrey", expand_x=True, pad=((0, 0), (0, 0))), ],
+    [sg.Col([[
+        sg.Text("After Effects",
+                enable_events=True, key="-AE-", pad=((20,5), (5,5))),
+    ]], expand_x=True, pad=((0, 0), (0, 0))), ],
+    [sg.Col([[
+        sg.Text("Server Incoming", size=(20, 1), enable_events=True,
+                key="-incoming-",pad=((20,5), (10,5))),
+    ]], expand_x=True, pad=((0, 0), (0, 0))), ],
+    [sg.Col([[
+        sg.Text("Server delivery", enable_events=True, key="-delivery-" ,pad=((20,5), (5,5))),
+    ]], expand_x=True, pad=((0, 0), (0, 0))), ],
+    [sg.Col([[
+        sg.B('Back',pad=((20, 10), (250, 0)),button_color=("white", "black"))
+    ]], expand_x=True, pad=((0, 0), (0, 20))), ],
 ]
 
 
@@ -32,14 +37,14 @@ def create_Text(txt):
     return sg.T(txt, background_color="black", text_color="white")
 
 
-navigator_column = [
+info_column = [
     [sg.T("Available Varaibales:"), sg.Column(
         [
             [
                 create_Text("FirstName"), create_Text("LastName"), create_Text("FileLink")
             ],
             [create_Text("ExpiryDate"), create_Text("Reference")]
-        ],pad = ((0,0),(20,0)), vertical_alignment="t"
+        ],pad = ((0,0),(5,0)), vertical_alignment="t"
     ),
     ],
     [sg.Text("Mesage:")],
@@ -54,7 +59,7 @@ navigator_column = [
 
  Best Regars, your APGS|SGA Ad eMotion Team
             """,
-            size=(50,10)
+            size=(52,10),
         )
     ],
     [sg.T("Email Adress:", pad=((27,5),(10,10))), sg.I(size=(37,1))],
@@ -73,11 +78,11 @@ navigator_column = [
 # ----- Full layout -----
 layout = [
     [
-        sg.Column(info_column, vertical_alignment="t"),
-        sg.VSeperator(),
-        sg.Column(navigator_column, vertical_alignment="t", justification="c"),
+        sg.Column(navigator_column, vertical_alignment="t", pad=((0,), (15,5))),
+        sg.VSeperator(pad=((0, 0), (0, 0),), color="black"),
+        sg.Column(info_column, vertical_alignment="t", pad=((30,5), (15,5))),
+
     ]
 ]
-
 # Create the window
-window2 = sg.Window("Settings", layout)
+window2 = sg.Window("Settings", layout, margins=(0, 0))
