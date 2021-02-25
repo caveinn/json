@@ -32,13 +32,13 @@ info_column = [
 ]
 
 navigator_column = [
-    [sg.Text("Upload Logo: "), sg.Text("FILENAME SHOW HERE.jpg", size=(30,1)), sg.B("Select") ],
-    [sg.Text("Upload Icon: ",pad=((10,5),(5))), sg.Text("FILENAME SHOW HERE.jpg", size=(30,1)), sg.B("select")],
+    [sg.Text("Upload Logo: "), sg.Text("FILENAME SHOW HERE.jpg", size=(50,1),), sg.FileBrowse("Select",), ],
+    [sg.Text("Upload Icon: ",pad=((10,5),(5))), sg.Text("FILENAME SHOW HERE.jpg", size=(50,1)), sg.FileBrowse("select")],
     [sg.Text(pad=((405,5),(0, 170)))],
     [sg.Text("Availability of File online:", pad=((10, 5),(5,5))),sg.I(size=(10,1)), sg.T("Days")],
     [sg.Text("Availability of Master Files:", pad=((0, 5),(5,5))),sg.I(size=(10,1)), sg.T("Days")],
     [sg.Text("Sync Interval FTP:", pad=((37, 5),(5,5))),sg.I(size=(10,1)), sg.T("Minutes")],
-    [sg.T(pad=((0,400),(70,0)))],
+    [sg.T(pad=((0,420),(70,0)))],
 
 ]
 # ----- Full layout -----
