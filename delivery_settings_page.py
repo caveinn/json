@@ -2,7 +2,7 @@
 import PySimpleGUI as sg
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
-info_column = [
+navigator_column = [
     [sg.Col([[
         sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
 
@@ -30,7 +30,7 @@ info_column = [
     ]], expand_x=True, pad=((0, 0), (0, 20))), ],
 ]
 
-navigator_column = [
+info_column = [
     [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"],)],
     [sg.Text("FTP Server:", pad=((22, 5), (5, 5))), sg.I(size=(30, 1))],
     [sg.Text("Port:", pad=((57, 5), (5, 5))), sg.I(size=(30, 1))],
@@ -43,11 +43,11 @@ navigator_column = [
 # ----- Full layout -----
 layout = [
     [
-        sg.Column(info_column, vertical_alignment="t", pad=((0,), (15,5))),
+        sg.Column(navigator_column, vertical_alignment="t", pad=((0,), (15,5))),
         sg.VSeperator(pad=((0, 0), (0, 0),), color="black"),
-        sg.Column(navigator_column, vertical_alignment="t", pad=((0,), (15,5)),),
+        sg.Column(info_column, vertical_alignment="t", pad=((0,), (15,5)),),
     ]
 ]
 
 # Create the window
-window2 = sg.Window("Settings", layout, margins=(0,0))
+window = sg.Window("Settings", layout, margins=(0,0))
