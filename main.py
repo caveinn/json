@@ -7,8 +7,11 @@ from after_effects_settings_page import make_window as effects_settingsWindow
 from email_settings_page import make_window as email_settingsWindow
 from app_status_page import make_window as mainwindow
 from utils import init_config_file
-from event_handlers import main_event_handler
-
+from event_handlers import(
+    main_event_handler,
+    general_settings_event_handler,
+    json_settings_event_handler
+)
 
 
 init_config_file()
@@ -20,45 +23,52 @@ while True:
     # import pdb; pdb.set_trace()
     print(event, values)
     if current_window == "main":
-        main_event_handler(event,values, window)
+        main_event_handler(event, values, window)
+    elif current_window == "general":
+        general_settings_event_handler(event, values, window)
+    elif current_window == "json":
+        json_settings_event_handler(event, values, window)
 
-    if event=="-settings-":
+    if event == "-settings-":
+        current_window = "general"
         window.hide()
         window = general_settingsWindow()
         window.finalize()
         window.un_hide()
         # showNewWindow(window, general_settingsWindow)
-    if event=="-general-":
+    if event == "-general-":
+        current_window = "general"
         window.hide()
         window = general_settingsWindow()
         window.finalize()
         window.un_hide()
-    if event=="-json-":
+    if event == "-json-":
+        current_window = "json"
         window.hide()
         window = json_settingsWindow()
         window.finalize()
         window.un_hide()
-    if event=="-email-":
+    if event == "-email-":
         window.hide()
         window = email_settingsWindow()
         window.finalize()
         window.un_hide()
-    if event=="-AE-":
+    if event == "-AE-":
         window.hide()
         window = effects_settingsWindow()
         window.finalize()
         window.un_hide()
-    if event=="-delivery-":
+    if event == "-delivery-":
         window.hide()
         window = delivery_settingsWindow()
         window.finalize()
         window.un_hide()
-    if event=="-incoming-":
+    if event == "-incoming-":
         window.hide()
         window = incoming_settingsWindow()
         window.finalize()
         window.un_hide()
-    if event =="Back":
+    if event == "Back":
         window.hide()
         window = mainwindow()
         window.finalize()

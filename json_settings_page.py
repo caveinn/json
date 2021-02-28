@@ -1,9 +1,15 @@
 
 import PySimpleGUI as sg
+from event_handlers import get_config
 sg.theme('Dark Grey 5')
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
 def make_window():
+    config = get_config()
+    campaign_path = config["ADS"]["campaign_json_path"]
+    ae_path = config["ADS"]["ae_file"]
+    ads = config["ADS"]["ads"]
+
     navigator_column = [
         [sg.Col([[
             sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
@@ -35,10 +41,11 @@ def make_window():
 
 
     info_column = [
-        [sg.Text("Campaign JSON Path:", pad=((7,5),(0,0))),sg.Text("//show path here"),  sg.Button("select")],
-        [sg.Text("After Effects JSON file:"), sg.Text("//show path here"), sg.Button("select")],
-        [sg.Text("Campaign Ads Path: ", pad=((17,5),(0,0))),sg.Text("//show path here"),  sg.Button("select")],
-        [sg.Text(pad=((405,5),(0, 170)))],
+        [sg.Text("Campaign JSON Path:", pad=((7,5),(0,0))),sg.Text(campaign_path, size=(50,1)),  sg.FolderBrowse("select", key="campaign")],
+        [sg.Text("After Effects JSON file:"), sg.Text(ae_path, size=(50,1)), sg.FolderBrowse("select", key="ae")],
+        [sg.Text("Campaign Ads Path: ", pad=((17,5),(0,0))),sg.Text(ads, size=(50,1)),  sg.FolderBrowse("select", key='ads')],
+        [sg.Text(pad=((505,5),(0, 170)))],
+        [sg.Button("save", pad=((440,0), (120,5)))]
 
     ]
     # ----- Full layout -----

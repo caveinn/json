@@ -6,6 +6,11 @@ import os
 class Services():
     pass
 
+def is_image(path):
+    if path.lower().endswith((".png", ".jpg", ".jpeg")):
+        return True
+    return False
+
 
 def init_config_file():
     if os.path.exists("app.ini"):
@@ -23,7 +28,7 @@ def init_config_file():
     config['GENERAL'] = {
         "online_availability_duration": 1,
         "master_availability_duration": 1,
-        "sync interval": 5,
+        "sync_interval": 5,
     }
     config["ADS"] ={
         "campaign_JSON_path": "~/Desktop/campaign",
