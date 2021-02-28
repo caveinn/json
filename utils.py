@@ -14,10 +14,11 @@ def init_config_file():
     config['APP'] = {
         "logo": '',
         "lastCampaign_code": "000808",
-        "ladtCampaig_date": "randomDate",
+        "lastCampaign_date": "randomDate",
         "syncJson": "01.11.2020@10:25am",
         "automaticallyStart": False,
-        "services-stopped": True
+        "services_stopped": True,
+        "sync_folder": "01.11.2020@10:25am"
     }
     config['GENERAL'] = {
         "online_availability_duration": 1,
