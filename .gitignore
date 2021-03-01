@@ -2,3 +2,4 @@ removed/
 env/
 .vscode
 dist/
+build/
