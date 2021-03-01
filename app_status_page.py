@@ -24,7 +24,7 @@ def make_window():
             sg.Text("Settings", key="-settings-", enable_events=True),
         ], ],  expand_x=True)],
         [sg.Col([[
-            sg.Text("About"),
+            sg.Text("About", enable_events=True),
         ], ], expand_x=True)]
     ]
 

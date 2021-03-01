@@ -6,11 +6,13 @@ from delivery_settings_page import make_window as delivery_settingsWindow
 from after_effects_settings_page import make_window as effects_settingsWindow
 from email_settings_page import make_window as email_settingsWindow
 from app_status_page import make_window as mainwindow
+from about_page import make_window as aboutwindow
 from utils import init_config_file
 from event_handlers import(
     main_event_handler,
     general_settings_event_handler,
-    json_settings_event_handler
+    json_settings_event_handler,
+    email_settings_event_handler
 )
 
 
@@ -28,6 +30,8 @@ while True:
         general_settings_event_handler(event, values, window)
     elif current_window == "json":
         json_settings_event_handler(event, values, window)
+    elif current_window == "email":
+        email_settings_event_handler(event, values, window)
 
     if event == "-settings-":
         current_window = "general"
@@ -49,6 +53,7 @@ while True:
         window.finalize()
         window.un_hide()
     if event == "-email-":
+        current_window = "email"
         window.hide()
         window = email_settingsWindow()
         window.finalize()
@@ -69,10 +74,18 @@ while True:
         window.finalize()
         window.un_hide()
     if event == "Back":
+        current_window="main"
         window.hide()
         window = mainwindow()
         window.finalize()
         window.un_hide()
+    if event == "About":
+        current_window = "about"
+        window.hide()
+        window = aboutwindow()
+        window.finalize()
+        window.un_hide()
+
     if event == sg.WIN_CLOSED or event == 'Exit':
         window.close()
         break

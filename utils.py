@@ -49,7 +49,7 @@ def init_config_file():
         "adress": "example@example.com",
         "server": "127.0.0.1",
         "port":"8080",
-        "usernmae": "example",
+        "username": "example",
         "password": "sample"
     }
 

@@ -1,9 +1,19 @@
 
 import PySimpleGUI as sg
+from event_handlers import get_config
+
 sg.theme('Dark Grey 5')
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
 def make_window():
+    config = get_config()
+    message = config["EMAIL"]["message"]
+    adress = config["EMAIL"]["adress"]
+    server = config["EMAIL"]["server"]
+    port = config["EMAIL"]["port"]
+    username = config["EMAIL"]["username"]
+    password = config["EMAIL"]["password"]
+
     navigator_column = [
         [sg.Col([[
             sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
@@ -51,29 +61,17 @@ def make_window():
         [sg.Text("Mesage:")],
         [
             sg.Multiline(
-                """
-    Dear[fisrt name][last name]
-
-    Your file to the campaign [reference] is available for download at [file link]
-
-    The link wil expire on [expiry date]
-
-    Best Regars, your APGS|SGA Ad eMotion Team
-                """,
+               message,
+                key="message",
                 size=(52,10),
             )
         ],
-        [sg.T("Email Adress:", pad=((27,5),(10,10))), sg.I(size=(37,1))],
-        [sg.T("SMTP server:", pad=((27,5),(10,10))), sg.I(size=(20,1)), sg.T("Port:"), sg.I(size=(9,1))],
-        [sg.T("SMTP Username:", pad=((7,5),(10,10))), sg.I(size=(38,1))],
-        [sg.T("SMTP Passord:",  pad=((18,5),(10,10))), sg.I(size=(30,1)), sg.B("Show")],
-
-        # [sg.Text("Sart /stop services:"), sg.Button("stop")],
-        # [sg.Text("Automatically start at login"), sg.Checkbox(
-        #     "", key="-autostart-", enable_events=True)],
-        # [sg.Text(size=(40, 1), key="-TOUT-")],
-        # [sg.Image(key="-IMAGE-")],
+        [sg.T("Email Adress:", pad=((27,5),(10,10))), sg.I(adress, key="adress",size=(37,1))],
+        [sg.T("SMTP server:", pad=((27,5),(10,10))), sg.I(server, key="server",size=(20,1)), sg.T("Port:"), sg.I(port,key="port", size=(9,1))],
+        [sg.T("SMTP Username:", pad=((7,5),(10,10))), sg.I(username,key="username",size=(38,1))],
+        [sg.T("SMTP Passord:",  pad=((18,5),(10,10))), sg.I(password,key="password", size=(38,1),password_char="*")],
         [sg.Text(pad=((405,5),(20)))],
+        [sg.B("save", pad=((350, 0), (20, 0)))]
 
     ]
     # ----- Full layout -----

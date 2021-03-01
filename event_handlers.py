@@ -18,12 +18,12 @@ def main_event_handler(event,values, window):
 
     if event == "-stop-":
 
-        stopped = not config.getboolean("APP","services_stopped")
-        config["APP"]["services_stopped"] = str(stopped)
+        stopped = config.getboolean("APP","services_stopped")
+        config["APP"]["services_stopped"] = str(not stopped)
         write_config(config)
         stopBtn.update(
-            text="stop" if not stopped else "start",
-            button_color="white on red" if not stopped else "white on green"
+            text="stop" if  stopped else "start",
+            button_color="white on red" if stopped else "white on green"
             )
     if event == "-autostart-":
         config["APP"]["automaticallystart"] = str(values[event])
@@ -58,4 +58,11 @@ def json_settings_event_handler(event,values, window):
         config["ADS"]["campaign_json_path"] = values["campaign"]
         config["ADS"]["ae_file"] = values["ae"]
         config["ADS"]["ads"] = values["ads"]
+    write_config(config)
+
+def email_settings_event_handler(event,values, window):
+    config = get_config()
+    if event == "save":
+       for k,v in values.items():
+           config["EMAIL"][k] = v
     write_config(config)
