@@ -55,9 +55,9 @@ def general_settings_event_handler(event,values, window):
 def json_settings_event_handler(event,values, window):
     config = get_config()
     if event == "save":
-        config["ADS"]["campaign_json_path"] = values["campaign"]
-        config["ADS"]["ae_file"] = values["ae"]
-        config["ADS"]["ads"] = values["ads"]
+        config["ADS"]["campaign_json_path"] = values["campaign"] if values["campaign"] else config["ADS"]["campaign_json_path"]
+        config["ADS"]["ae_file"] = values["ae"] if values["ae"] else config["ADS"]["ae_file"]
+        config["ADS"]["ads"] = values["ads"] if values["ads"] else config["ADS"]["ads"]
     write_config(config)
 
 def email_settings_event_handler(event,values, window):

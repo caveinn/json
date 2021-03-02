@@ -14,12 +14,23 @@ from event_handlers import(
     json_settings_event_handler,
     email_settings_event_handler
 )
+from utils import Services
+import threading
+
 
 
 init_config_file()
 
 window = mainwindow()
 current_window = "main"
+
+my_service = Services()
+# def run_services():
+#     my_service.run_services()
+
+
+my_service.run_services()
+
 while True:
     event, values = window.read()
     # import pdb; pdb.set_trace()

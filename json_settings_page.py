@@ -42,7 +42,7 @@ def make_window():
 
     info_column = [
         [sg.Text("Campaign JSON Path:", pad=((7,5),(0,0))),sg.Text(campaign_path, size=(50,1)),  sg.FolderBrowse("select", key="campaign")],
-        [sg.Text("After Effects JSON file:"), sg.Text(ae_path, size=(50,1)), sg.FolderBrowse("select", key="ae")],
+        [sg.Text("After Effects JSON file:"), sg.Text(ae_path, size=(50,1)), sg.FileBrowse("select", key="ae")],
         [sg.Text("Campaign Ads Path: ", pad=((17,5),(0,0))),sg.Text(ads, size=(50,1)),  sg.FolderBrowse("select", key='ads')],
         [sg.Text(pad=((505,5),(0, 170)))],
         [sg.Button("save", pad=((440,0), (120,5)))]
