@@ -6,24 +6,29 @@ from ftplib import FTP
 import json
 import threading
 import time
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 
 def get_config():
     config = configparser.ConfigParser()
     config.read("app.ini")
     return config
+
+
 class Services():
     password = "@password1crealto"
     config = get_config()
-    def login_ftp(self):
-        user = "marco@crealto.ch"
-        password = "@password1crealto"
+    # def login_ftp(self):
+    #     user = "marco@crealto.ch"
+    #     password = "@password1crealto"
 
-        with FTP("ftp.visuals.ch", "devapg@visualsplus.ch", password) as ftp:
-            ftp.login()
+    #     with FTP("ftp.visuals.ch", "devapg@visualsplus.ch", password) as ftp:
+    #         ftp.login()
 
-    def login_sftp(self):
-        pass
+    # def login_sftp(self):
+    #     pass
 
     def is_file(self, filename, ftp):
         current = ftp.pwd()
@@ -35,7 +40,44 @@ class Services():
         ftp.cwd(current)
         return False
 
+    def delete_remote(self, filename,):
+        config = get_config()["INCOMING"]
+        with FTP(config["server"], config["username"], config["password"]) as tempftp:
+            tempftp.cwd(config["json_path"])
+            tempftp.delete(filename)
+            tempftp.quit()
+
+    def upload_remote(self, filename):
+        config = get_config()["DELIVERY"]
+        with FTP(config["server"], config["username"], config["password"]) as ftp:
+            ftp.cwd(config["delivery_path"])
+            myfile = open(f"/Users/kevinnzioka/Desktop/test/ae/{filename}.mp4", "rb")
+            ftp.storbinary(f"STOR {filename}.mp4", myfile)
+            myfile.close()
+            ftp.quit()
+
+    def send_mail(self, firstname, lastname, filelink, expirydate, referenece, to_address):
+        config = get_config()["EMAIL"]
+        msg = MIMEMultipart()
+        msg['From'] = config["adress"]
+        msg['To'] = to_address
+        msg['Subject'] = 'File Upload Successful'
+        message = config["message"].replace("[FirstName]", firstname).replace("[LastName]", lastname).replace(
+            "[FileLink]", filelink).replace("[ExpiryDate]", expirydate).replace("[Reference]", referenece)
+        msg.attach(MIMEText(message))
+        mailserver = smtplib.SMTP(config["server"])
+        mailserver.ehlo()
+        # secure our email with tls encryption
+        mailserver.starttls()
+        # re-identify ourselves as an encrypted connection
+        mailserver.ehlo()
+        mailserver.login(config["username"], config["password"])
+        a = mailserver.sendmail(config['adress'], to_address, msg.as_string())
+        mailserver.quit()
+
     def save_files(self, files, ftp, parent):
+        if get_config().getboolean("APP", "services_stopped"):
+            return
         for file in files:
             if self.is_file(file, ftp):
                 local_file = os.path.join(parent, file)
@@ -52,6 +94,8 @@ class Services():
                 ftp.cwd("..")
 
     def download_json(self):
+        if get_config().getboolean("APP", "services_stopped"):
+            return
         path = self.config["ADS"]["campaign_json_path"]
         os.makedirs(path, exist_ok=True)
         with FTP("ftp.visualsplus.ch", "devapg@visualsplus.ch", self.password) as ftp:
@@ -72,36 +116,43 @@ class Services():
             ftp.quit()
 
     def check_json(self):
-        name = self.config["ADS"]["ae_file"]
-        with open(name) as json_file:
-            data = json.load(json_file)
-            for entry in data:
-                if entry["render-status"] != "done":
-                    time.sleep(2)
-                    self.check_json()
-        self.replace()
-        self.check_json()
+        if not get_config().getboolean("APP", "services_stopped"):
+            print(not get_config().getboolean("APP", "services_stopped"))
+            name = self.config["ADS"]["ae_file"]
+            with open(name) as json_file:
+                data = json.load(json_file)
+                for entry in data:
+                    if entry["render-status"] != "done":
+                        time.sleep(2)
+                        self.check_json()
+            self.replace()
+            self.check_json()
+        else:
+            return
 
     def replace(self):
+        if not get_config().getboolean("APP", "services_stopped"):
             data = ''
-            path = self.config["ADS"]["campaign_json_path"]
+            path = get_config()["ADS"]["campaign_json_path"]
             campaigns = os.listdir(path)
             campaign = ''
-            processed= os.path.join(path, 'processing',)
+            processed = os.path.join(path, 'processing',)
             os.makedirs(processed, exist_ok=True)
             processed_files = os.listdir(processed)
             for f in processed_files:
                 del_path = os.path.join(processed, f)
+                # check if mp4 is created and send it to ftp
+
                 os.remove(del_path)
             curr_path = ''
             if campaigns:
                 campaign = campaigns[0]
                 curr_path = os.path.join(path, campaign)
                 print(curr_path)
-            if campaign and  os.path.isfile(curr_path):
+            if campaign and os.path.isfile(curr_path) and not path.endswith(".DS_Store"):
                 with open(curr_path) as json_file:
                     data = json.load(json_file)
-                proccessing_campaign_path = os.path.join(processed,campaign)
+                proccessing_campaign_path = os.path.join(processed, campaign)
                 os.rename(curr_path, proccessing_campaign_path)
             else:
                 print("Downloading Json")
@@ -111,16 +162,14 @@ class Services():
 
             with open(name, "w") as json_file:
                 json.dump(data, json_file)
-
+        else:
+            return
 
     def run_services(self):
-        thread1 = threading.Thread(target=self.check_json)
+        self.json_thread = threading.Thread(target=self.check_json)
         # thread2 = threading.Thread(target=self.test_shedule2)
         # thread2.start()
-        thread1.start()
-
-
-
+        self.json_thread.start()
 
 
 def is_image(path):
@@ -177,19 +226,21 @@ def init_config_file():
     }
     config["DELIVERY"] = {
         "protocal": "FTP",
-        "server": "127.0.0.1",
-        "port": 8080,
-        "usernane": "name",
-        "password": "sample",
-        "delivery_path": "path_here"
+        "server": "ftp.visualsplus.ch",
+        "port": 21,
+        "username": "devapg@visualsplus.ch",
+        "password": "@password1crealto",
+        "delivery_path": "delivery"
     }
 
     config["INCOMING"] = {
         "protocal": "FTP",
-        "server": "127.0.0.1",
-        "port": 8080,
-        "usernane": "name",
-        "password": "sample",
+        "server": "ftp.visualsplus.ch",
+        "port": 21,
+        "username": "devapg@visualsplus.ch",
+        "password": "@password1crealto",
+        "json_path": "a/storage/private/Ads",
+        "ads_path": "a/storage/private/json"
     }
 
     with open('app.ini', "w") as configFile:

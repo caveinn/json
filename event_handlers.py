@@ -12,7 +12,7 @@ def get_config():
     return config
 
 
-def main_event_handler(event,values, window):
+def main_event_handler(event,values, window, services):
     config = get_config()
     stopBtn = window.find_element("-stop-")
 
@@ -25,6 +25,8 @@ def main_event_handler(event,values, window):
             text="stop" if  stopped else "start",
             button_color="white on red" if stopped else "white on green"
             )
+        if stopped:
+            services.run_services()
     if event == "-autostart-":
         config["APP"]["automaticallystart"] = str(values[event])
         write_config(config)
@@ -65,4 +67,25 @@ def email_settings_event_handler(event,values, window):
     if event == "save":
        for k,v in values.items():
            config["EMAIL"][k] = v
+    write_config(config)
+
+def incoming_settings_event_handler(event, values, widnow):
+    config = get_config()
+    if event == "save":
+       for k,v in values.items():
+           config["INCOMING"][k] = v
+    write_config(config)
+
+def delivery_settings_event_handler(event, values, widnow):
+    config = get_config()
+    if event == "save":
+       for k,v in values.items():
+           config["DELIVERY"][k] = v
+    write_config(config)
+
+def ae_settings_event_handler(event, values, widnow):
+    config = get_config()
+    if event == "save":
+       for k,v in values.items():
+           config["AE"][k] = v
     write_config(config)

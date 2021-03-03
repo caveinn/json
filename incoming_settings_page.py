@@ -1,8 +1,11 @@
 
 import PySimpleGUI as sg
+from utils import get_config
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
 def make_window():
+    config = get_config()["INCOMING"]
+
     navigator_column = [
         [sg.Col([[
             sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
@@ -30,14 +33,16 @@ def make_window():
             sg.B('Back',pad=((20, 10), (250, 0)),button_color=("white", "black"), highlight_colors=("red", "green"), use_ttk_buttons=False)
         ]], expand_x=True, pad=((0, 0), (0, 20))), ],
     ]
-
     info_column = [
-        [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"],)],
-        [sg.Text("FTP Server:", pad=((22, 5), (5, 5))), sg.I(size=(30, 1))],
-        [sg.Text("Port:", pad=((57, 5), (5, 5))), sg.I(size=(30, 1))],
-        [sg.Text("Username:", pad=((30, 5), (5, 5))), sg.I(size=(30, 1))],
-        [sg.Text("Password:", pad=((32, 5), (5, 5))), sg.I(size=(30, 1))],
+        [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"], key ="protocal", default_value=config["protocal"], enable_events=True)],
+        [sg.Text("FTP Server:", pad=((22, 5), (5, 5))), sg.I(config["server"], key="server",size=(30, 1))],
+        [sg.Text("Port:", pad=((57, 5), (5, 5))), sg.I(config["port"],key="port",size=(30, 1))],
+        [sg.Text("Username:", pad=((30, 5), (5, 5))), sg.I(config["username"], key="username",size=(30, 1))],
+        [sg.Text("Password:", pad=((32, 5), (5, 5))), sg.I(config["password"],size=(30, 1), key="password", password_char="*")],
         [sg.T(pad=((0, 400), (70, 0)))],
+        [sg.T("Campaign JSON path:"), sg.I(config["json_path"], key="json_path", size=(20,1),)],
+        [sg.T("Campaign Ads path:", pad=((15,5),(5,5))), sg.I(config["ads_path"], key="ads_path", size=(20,1),)],
+        [sg.B("save", pad=((280,20), (140,5)))]
 
     ]
     # ----- Full layout -----

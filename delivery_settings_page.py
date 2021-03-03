@@ -1,8 +1,10 @@
 
 import PySimpleGUI as sg
+from utils import get_config
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
 def make_window():
+    config = get_config()["DELIVERY"]
     navigator_column = [
         [sg.Col([[
             sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
@@ -32,14 +34,14 @@ def make_window():
     ]
 
     info_column = [
-        [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"],)],
-        [sg.Text("FTP Server:", pad=((22, 5), (5, 5))), sg.I(size=(30, 1))],
-        [sg.Text("Port:", pad=((57, 5), (5, 5))), sg.I(size=(30, 1))],
-        [sg.Text("Username:", pad=((30, 5), (5, 5))), sg.I(size=(30, 1))],
-        [sg.Text("Password:", pad=((32, 5), (5, 5))), sg.I(size=(30, 1))],
+        [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"], default_value=config["protocal"],key="protocal", enable_events=True)],
+        [sg.Text("FTP Server:", pad=((22, 5), (5, 5))), sg.I(config["server"], key="server",size=(30, 1))],
+        [sg.Text("Port:", pad=((57, 5), (5, 5))), sg.I(config["port"],key="port",size=(30, 1))],
+        [sg.Text("Username:", pad=((30, 5), (5, 5))), sg.I(config["username"],key="username",size=(30, 1))],
+        [sg.Text("Password:", pad=((32, 5), (5, 5))), sg.I(config["password"], key="password",size=(30, 1),password_char="*" )],
         [sg.T(pad=((0, 400), (70, 0)))],
-        [sg.T("File Delivery Path:"), sg.I(size=(38, 1))],
-
+        [sg.T("File Delivery Path:"), sg.I(config["delivery_path"], key="delivery_path",size=(38, 1))],
+        [sg.B("save", pad=((320,20), (160,5)))]
     ]
     # ----- Full layout -----
     layout = [

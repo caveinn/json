@@ -33,12 +33,13 @@ def make_window():
 
     navigator_column = [
         [sg.Text("Select AfterEffects Project:"), sg.Text(
-            "//show path here"),  sg.Button("select")],
+            "//show path here", size=(20,1)),  sg.FileBrowse("select", key="project")],
         [sg.Text("Select Render:", pad=((60, 5), (0, 0))),
-        sg.Text("//show path here"), sg.Button("select")],
+        sg.Text("//show path here", size=(20,1)), sg.FolderBrowse("select", key="render")],
         [sg.Text("Select Backup Path:", pad=((35, 5), (0, 0))),
-        sg.Text("//show path here"),  sg.Button("select")],
+        sg.Text("//show path here", size=(20,1)),  sg.FolderBrowse("select", key="backup_path")],
         [sg.Text("", pad=((6, 400), (0, 300)))],
+        [sg.B("save", pad=((280,20), (5,5)))]
 
     ]
     # ----- Full layout -----
