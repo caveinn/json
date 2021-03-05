@@ -1,9 +1,11 @@
 
 import PySimpleGUI as sg
+from utils import get_config
 sg.theme('Dark Grey 5')
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
 def make_window():
+    config = get_config()["AE"]
     info_column = [
         [sg.Col([[
             sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
@@ -33,11 +35,11 @@ def make_window():
 
     navigator_column = [
         [sg.Text("Select AfterEffects Project:"), sg.Text(
-            "//show path here", size=(20,1)),  sg.FileBrowse("select", key="project")],
+            config["project"], size=(20,1)),  sg.FileBrowse("select",initial_folder=config["project"], key="project"),],
         [sg.Text("Select Render:", pad=((60, 5), (0, 0))),
-        sg.Text("//show path here", size=(20,1)), sg.FolderBrowse("select", key="render")],
+        sg.Text(config["render"], size=(20,1)), sg.FolderBrowse("select", key="render")],
         [sg.Text("Select Backup Path:", pad=((35, 5), (0, 0))),
-        sg.Text("//show path here", size=(20,1)),  sg.FolderBrowse("select", key="backup_path")],
+        sg.Text(config["backup_path"], size=(20,1)),  sg.FolderBrowse("select", key="backup_path")],
         [sg.Text("", pad=((6, 400), (0, 300)))],
         [sg.B("save", pad=((280,20), (5,5)))]
 

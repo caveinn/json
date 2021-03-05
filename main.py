@@ -17,7 +17,7 @@ from event_handlers import (
     main_event_handler,
     ae_settings_event_handler,
 )
-from utils import Services
+from utils import Services, get_config, write_config
 import threading
 
 
@@ -36,7 +36,13 @@ my_service.run_services()
 while True:
     event, values = window.read()
     # import pdb; pdb.set_trace()
+    config = get_config()
     print(event, values)
+    if config ["ERRORS"]["json_error"]:
+        sg.Popup(config ["ERRORS"]["json_error"],title="Error")
+        config ["ERRORS"]["json_error"] = ''
+        write_config(config)
+
     if current_window == "main":
         main_event_handler(event, values, window, my_service)
     elif current_window == "general":

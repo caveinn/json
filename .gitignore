@@ -6,3 +6,6 @@ build/
 __pycache__/utils.cpython-38.pyc
 __pycache__/
 __pycache__
+.DS_Store
+.eggs/
+.eggs

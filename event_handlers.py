@@ -66,26 +66,26 @@ def email_settings_event_handler(event,values, window):
     config = get_config()
     if event == "save":
        for k,v in values.items():
-           config["EMAIL"][k] = v
+           config["EMAIL"][k] = v if  v else config["EMAIL"][k]
     write_config(config)
 
 def incoming_settings_event_handler(event, values, widnow):
     config = get_config()
     if event == "save":
        for k,v in values.items():
-           config["INCOMING"][k] = v
+           config["INCOMING"][k] = v if v else config["INCOMING"][k]
     write_config(config)
 
 def delivery_settings_event_handler(event, values, widnow):
     config = get_config()
     if event == "save":
        for k,v in values.items():
-           config["DELIVERY"][k] = v
+           config["DELIVERY"][k] = v if v else config["DELIVERY"][k]
     write_config(config)
 
 def ae_settings_event_handler(event, values, widnow):
     config = get_config()
     if event == "save":
        for k,v in values.items():
-           config["AE"][k] = v
+           config["AE"][k] = v if v else config["AE"][k]
     write_config(config)
