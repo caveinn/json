@@ -32,31 +32,45 @@ my_service = Services()
 
 
 my_service.run_services()
+config = get_config()
 
-while True:
-    event, values = window.read()
-    # import pdb; pdb.set_trace()
+def display_errors():
     config = get_config()
-    print(event, values)
     if config ["ERRORS"]["json_error"]:
         sg.Popup(config ["ERRORS"]["json_error"],title="Error")
         config ["ERRORS"]["json_error"] = ''
         write_config(config)
 
+while True:
+    display_errors()
+    event, values = window.read()
+    # import pdb; pdb.set_trace()
+
+    print(event, values)
+
+
+
     if current_window == "main":
         main_event_handler(event, values, window, my_service)
+        display_errors()
     elif current_window == "general":
         general_settings_event_handler(event, values, window)
+        display_errors()
     elif current_window == "json":
         json_settings_event_handler(event, values, window)
+        display_errors()
     elif current_window == "email":
         email_settings_event_handler(event, values, window)
+        display_errors()
     elif current_window == "incoming":
         incoming_settings_event_handler(event, values, window)
+        display_errors()
     elif current_window == "delivery":
         delivery_settings_event_handler(event, values, window)
+        display_errors()
     elif current_window == "AE":
         ae_settings_event_handler(event, values, window)
+        display_errors()
 
     if event == "-settings-":
         current_window = "general"

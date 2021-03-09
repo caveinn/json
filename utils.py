@@ -110,6 +110,7 @@ class Services():
 
     def download_ads(self):
         save_dir = os.getcwd()
+        folder = get_config()["ADS"]["ads"]
         save_dir = os.path.join(save_dir, "test")
         os.makedirs(save_dir, exist_ok=True)
         config = get_config()
@@ -179,7 +180,7 @@ class Services():
             if campaigns:
                 campaign = campaigns[0]
                 curr_path = os.path.join(path, campaign)
-            if campaign and os.path.isfile(curr_path) and not curr_path.endswith(".DS_Store"):
+            if campaign and os.path.isfile(curr_path) and  curr_path.endswith(".json"):
                 with open(curr_path) as json_file:
                     data = json.load(json_file)
                 proccessing_campaign_path = os.path.join(processed, campaign)
@@ -187,6 +188,7 @@ class Services():
             else:
                 print("Downloading Json")
                 self.download_json()
+                self.downl
             path = self.config["ADS"]["campaign_json_path"]
             name = self.config["ADS"]["ae_file"]
 
