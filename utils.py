@@ -10,7 +10,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 
-
 def get_config():
     config = configparser.ConfigParser()
     config.read("app.ini")
@@ -23,15 +22,6 @@ def write_config(config):
 class Services():
     password = "@password1crealto"
     config = get_config()
-    # def login_ftp(self):
-    #     user = "marco@crealto.ch"
-    #     password = "@password1crealto"
-
-    #     with FTP("ftp.visuals.ch", "devapg@visualsplus.ch", password) as ftp:
-    #         ftp.login()
-
-    # def login_sftp(self):
-    #     pass
 
     def is_file(self, filename, ftp):
         current = ftp.pwd()
@@ -54,7 +44,8 @@ class Services():
         config = get_config()["DELIVERY"]
         with FTP(config["server"], config["username"], config["password"]) as ftp:
             ftp.cwd(config["delivery_path"])
-            myfile = open(f"/Users/kevinnzioka/Desktop/test/ae/{filename}.mp4", "rb")
+            render_folder = get_config()["AE"]["render"]
+            myfile = open(f"{render_folder}/{filename}.mp4", "rb")
             ftp.storbinary(f"STOR {filename}.mp4", myfile)
             myfile.close()
             ftp.quit()
@@ -82,9 +73,14 @@ class Services():
         if get_config().getboolean("APP", "services_stopped"):
             return
         for file in files:
+            if get_config().getboolean("APP", "services_stopped"):
+                return
             if self.is_file(file, ftp):
                 local_file = os.path.join(parent, file)
                 print(f"saving{local_file}")
+                if os.path.exists(local_file):
+                    # print("already exists")
+                    continue
                 new_file = open(local_file, 'wb+')
                 ftp.retrbinary("RETR "+file, new_file.write)
             elif file != "." and file != "..":
@@ -105,22 +101,28 @@ class Services():
         with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
             ftp.cwd(config["INCOMING"]["json_path"])
             files = ftp.nlst()
+
             self.save_files(files, ftp, path)
             ftp.quit()
 
     def download_ads(self):
-        save_dir = os.getcwd()
-        folder = get_config()["ADS"]["ads"]
-        save_dir = os.path.join(save_dir, "test")
-        os.makedirs(save_dir, exist_ok=True)
-        config = get_config()
-        with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
-            ftp.cwd(config["INCOMING"]["ads_path"])
-            files = ftp.nlst()
-            self.save_files(files, ftp, save_dir)
-            print(f"working dir at start = {save_dir}")
-            x = 1/0
-            ftp.quit()
+        print("Downloading ads")
+        if get_config().getboolean("APP", "services_stopped"):
+            return
+        try:
+            folder = get_config()["ADS"]["ads"]
+            os.makedirs(folder, exist_ok=True)
+            config = get_config()
+            with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
+                ftp.cwd(config["INCOMING"]["ads_path"])
+                files = ftp.nlst()
+                self.save_files(files, ftp, folder)
+                print(f"working dir at start = {folder}")
+                ftp.quit()
+        except Exception as e:
+            config = get_config()
+            config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + "," + str(e)
+            write_config(config)
 
     def check_json(self):
         try:
@@ -131,7 +133,7 @@ class Services():
                     data = json.load(json_file)
                     for entry in data:
                         if entry["render-status"] != "done":
-                            time.sleep(2)
+                            time.sleep(120)
                             self.check_json()
                 self.replace()
                 self.check_json()
@@ -139,6 +141,7 @@ class Services():
                 return
         except Exception as e:
             config = get_config()
+            print(e)
             config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + "," + str(e)
             write_config(config)
 
@@ -152,35 +155,49 @@ class Services():
 
             return return_data
 
+    def get_campaign(self):
+        path = get_config()["ADS"]["campaign_json_path"]
+        campaigns = os.listdir(path)
+        print(campaigns)
+        for i in campaigns:
+            if i.endswith(".json"):
+                return i
+        return None
+
+
     def replace(self):
         if not get_config().getboolean("APP", "services_stopped"):
             data = ''
             path = get_config()["ADS"]["campaign_json_path"]
-            campaigns = os.listdir(path)
-            campaign = ''
             processed = os.path.join(path, 'processing',)
             os.makedirs(processed, exist_ok=True)
             processed_files = os.listdir(processed)
+            print(processed_files)
             for f in processed_files:
+                print(f)
                 del_path = os.path.join(processed, f)
                 # check if mp4 is created and send it to ftp
                 json_data = self.get_json_data(del_path)
+                print(json_data)
                 for i in json_data:
-                    video_file =os.path.join(get_config()["AE"]["render"], f"{i['output']}.mp4")
-                    if os.path.isfile(video_file):
-                        self.upload_remote(i['output'])
-                        print("sending email")
-                        # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),"link",i.get("date"),i.get("reference", ""),i.get("email-delivery", ""))
-                        self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),"link",i.get("date"),i.get("reference", ""),"caveinncicad@gmail.com")
+                    print("json.data")
+                    if i.get("render-status") == "ready":
+                        video_file =os.path.join(get_config()["AE"]["render"], f"{i['output']}.mp4")
+                        while not os.path.isfile(video_file):
+                            print("waiting for video file")
+                            continue
+                        if os.path.isfile(video_file):
+                            self.upload_remote(i['output'])
+                            print("sending email")
+                            self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),"link",i.get("date"),i.get("reference", ""),"caveinncicad@gmail.com")
+                            # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),"link",i.get("date"),i.get("reference", ""),i.get("email-delivery", ""))
                 print(f"deleting {f}")
-                f="to_delete.json"
                 self.delete_remote(f)
                 os.remove(del_path)
             curr_path = ''
-            if campaigns:
-                campaign = campaigns[0]
+            campaign = self.get_campaign()
+            if campaign:
                 curr_path = os.path.join(path, campaign)
-            if campaign and os.path.isfile(curr_path) and  curr_path.endswith(".json"):
                 with open(curr_path) as json_file:
                     data = json.load(json_file)
                 proccessing_campaign_path = os.path.join(processed, campaign)
@@ -188,19 +205,20 @@ class Services():
             else:
                 print("Downloading Json")
                 self.download_json()
-                self.downl
+                self.download_ads()
+                # download_ads_thread = threading.Thread(target=self.download_ads)
+                # download_ads_thread.start()
+
             path = self.config["ADS"]["campaign_json_path"]
             name = self.config["ADS"]["ae_file"]
 
             with open(name, "w") as json_file:
-                json.dump(data, json_file)
+                json.dump(data, json_file, indent=4)
         else:
             return
 
     def run_services(self):
         self.json_thread = threading.Thread(target=self.check_json)
-        # thread2 = threading.Thread(target=self.test_shedule2)
-        # thread2.start()
         self.json_thread.start()
 
 
@@ -271,8 +289,8 @@ def init_config_file():
         "port": 21,
         "username": "devapg@visualsplus.ch",
         "password": "@password1crealto",
-        "json_path": "a/storage/private/Ads",
-        "ads_path": "a/storage/private/json"
+        "json_path": "a/storage/private/json",
+        "ads_path": "a/storage/private/Ads"
     }
     config["ERRORS"] ={
         "json_error": ""

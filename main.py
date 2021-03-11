@@ -35,20 +35,19 @@ my_service.run_services()
 config = get_config()
 
 def display_errors():
-    config = get_config()
-    if config ["ERRORS"]["json_error"]:
-        sg.Popup(config ["ERRORS"]["json_error"],title="Error")
-        config ["ERRORS"]["json_error"] = ''
-        write_config(config)
+    try:
+        config = get_config()
+        if config["ERRORS"]["json_error"]:
+            sg.Popup(config["ERRORS"]["json_error"],title="Error")
+            config["ERRORS"]["json_error"] = ''
+            write_config(config)
+    except Exception as e:
+        print(e)
 
 while True:
     display_errors()
-    event, values = window.read()
+    event, values = window.read(timeout=1000)
     # import pdb; pdb.set_trace()
-
-    print(event, values)
-
-
 
     if current_window == "main":
         main_event_handler(event, values, window, my_service)
@@ -127,6 +126,8 @@ while True:
         window = aboutwindow()
         window.finalize()
         window.un_hide()
+
+    display_errors()
 
     if event == sg.WIN_CLOSED or event == 'Exit':
         window.close()
