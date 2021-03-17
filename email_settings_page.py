@@ -13,6 +13,7 @@ def make_window():
     port = config["EMAIL"]["port"]
     username = config["EMAIL"]["username"]
     password = config["EMAIL"]["password"]
+    delivery_link = config["EMAIL"]["delivery_link"]
 
     navigator_column = [
         [sg.Col([[
@@ -70,6 +71,7 @@ def make_window():
         [sg.T("SMTP server:", pad=((27,5),(10,10))), sg.I(server, key="server",size=(20,1)), sg.T("Port:"), sg.I(port,key="port", size=(9,1))],
         [sg.T("SMTP Username:", pad=((7,5),(10,10))), sg.I(username,key="username",size=(38,1))],
         [sg.T("SMTP Passord:",  pad=((18,5),(10,10))), sg.I(password,key="password", size=(38,1),password_char="*")],
+        [sg.T("Delivery Path:",  pad=((15,5),(10,10))), sg.I(delivery_link,key="delivery_link", size=(38,1))],
         [sg.Text(pad=((405,5),(20)))],
         [sg.B("save", pad=((350, 0), (20, 0)))]
 

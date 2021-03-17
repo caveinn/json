@@ -6,7 +6,7 @@ sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
 def make_window():
     config = get_config()["AE"]
-    info_column = [
+    navigator_column = [
         [sg.Col([[
             sg.Text("General", enable_events=True, key="-general-", pad=((20,5), (5,5))),
 
@@ -33,23 +33,25 @@ def make_window():
         ]], expand_x=True, pad=((0, 0), (0, 20))), ],
     ]
 
-    navigator_column = [
+    info_column = [
         [sg.Text("Select AfterEffects Project:"), sg.Text(
-            config["project"], size=(20,1)),  sg.FileBrowse("select",initial_folder=config["project"], key="project"),],
+            config["project"], size=(50,1)),  sg.FileBrowse("select",initial_folder=config["project"], key="project"),],
         [sg.Text("Select Render:", pad=((60, 5), (0, 0))),
-        sg.Text(config["render"], size=(20,1)), sg.FolderBrowse("select", key="render")],
+        sg.Text(config["render"], size=(50,1)), sg.FolderBrowse("select", key="render")],
         [sg.Text("Select Backup Path:", pad=((35, 5), (0, 0))),
-        sg.Text(config["backup_path"], size=(20,1)),  sg.FolderBrowse("select", key="backup_path")],
-        [sg.Text("", pad=((6, 400), (0, 300)))],
-        [sg.B("save", pad=((280,20), (5,5)))]
+        sg.Text(config["backup_path"], size=(50,1)),  sg.FolderBrowse("select", key="backup_path")],
+        [sg.Text("", pad=((6, 505), (0, 300)))],
+        [sg.B("save", pad=((440,20), (5,5)))]
+        # [sg.Button("save", pad=((440,0), (120,5)))]
+
 
     ]
     # ----- Full layout -----
     layout = [
         [
-            sg.Column(info_column, vertical_alignment="t", pad=((0,), (15,5))),
+            sg.Column(navigator_column, vertical_alignment="t", pad=((0,), (15,5))),
             sg.VSeperator(pad=((0, 0), (0, 0),), color="black"),
-            sg.Column(navigator_column, vertical_alignment="t", pad=((0,), (15,5)),),
+            sg.Column(info_column, vertical_alignment="t", pad=((40,0), (15,5)),),
         ]
     ]
     # Create the window

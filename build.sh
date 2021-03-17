@@ -5,5 +5,5 @@ source env/bin/activate;
 pip install -r requirements.txt;
 python setup.py py2app;
 cp -r -f dist/main.app ~/Desktop;
-deactivate;
-rm -rf env;
+# deactivate;
+# rm -rf env;

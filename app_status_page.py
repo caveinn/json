@@ -13,7 +13,7 @@ def make_window():
     # change stop button color
     stopButtonColor = "white on green" if app_config.getboolean(
         "services_stopped") else "white on red"
-    stopButtonText = "start" if app_config.getboolean(
+    stopButtonText = "start" if  app_config.getboolean(
         "services_stopped") else "stop"
     navigator_column = [
         [sg.T(pad=(50, 0))],

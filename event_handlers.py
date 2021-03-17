@@ -19,13 +19,15 @@ def main_event_handler(event,values, window, services):
     if event == "-stop-":
 
         stopped = config.getboolean("APP","services_stopped")
-        config["APP"]["services_stopped"] = str(not stopped)
+        stopped = not stopped
+        config["APP"]["services_stopped"] = str(stopped)
+
         write_config(config)
         stopBtn.update(
-            text="stop" if  stopped else "start",
-            button_color="white on red" if stopped else "white on green"
+            text="stop" if not stopped else "start",
+            button_color="white on red" if not stopped else "white on green"
             )
-        if stopped:
+        if not stopped:
             services.run_services()
     if event == "-autostart-":
         config["APP"]["automaticallystart"] = str(values[event])
