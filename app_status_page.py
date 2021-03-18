@@ -3,8 +3,7 @@ import configparser
 sg.theme('Dark Grey 5')
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
-
-
+from output import apg_logo
 def make_window():
     config = configparser.ConfigParser()
     config.read("app.ini")
@@ -33,14 +32,14 @@ def make_window():
          sg.Image(filename=app_config['logo'], key="logo", size=(182, 62),)],
         [sg.T(pad=(0, (2)))],
         [sg.Col([[sg.Text("Last Delivered campaign:", pad=((10, 0,), (0, 20))), sg.Col([
-            [sg.Text(app_config['lastcampaign_code'])],
-            [sg.Text(app_config['lastCampaign_date'])]
+            [sg.Text(app_config['lastcampaign_code'], key="lastcampaign_code",size=(30,1))],
+            [sg.Text("Delivered:"),sg.Text({app_config['lastcampaign_date']}, key="lastcampaign_date",size=(30,1),pad=((0, 0)))]
         ])], ])],
         [sg.T(pad=(0, (2)))],
-        [sg.Text("Last Sync Campaign JSON:"), sg.T(app_config['syncjson'])],
+        [sg.Text("Last Sync Campaign JSON:"), sg.T(app_config['syncjson'], key = "syncjson",size=(30,1))],
         [sg.T(pad=(0, (2)))],
         [sg.Text("Last Sync /Ads folder:", pad=((33, 5), (5, 5))),
-         sg.T(app_config['sync_folder'])],
+         sg.T(app_config['sync_folder'], key="sync_folder",size=(30,1))],
         [sg.T(pad=((5, 400), (100, 0)))],
         [sg.Text("Sart /stop services:"), sg.Button(stopButtonText, key="-stop-",button_color=stopButtonColor)],
         [sg.Text("Automatically start at login"), sg.Checkbox(
@@ -58,7 +57,8 @@ def make_window():
                       pad=((37, 0), (15, 5)),),
         ]
     ]
+
     # Create the window
-    mainwindow = sg.Window("Support App", layout, margins=(0, 0))
+    mainwindow = sg.Window("Support App", layout, margins=(0, 0),icon=apg_logo)
 
     return mainwindow

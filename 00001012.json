@@ -1,9 +1,9 @@
 [
     {
         "lang": "fr",
-        "render-status": "done",
+        "render-status": "ready",
         "target": "Final_720p",
-        "output": "00001013_CRE_720p",
+        "output": "00001012_CRE_720p",
         "time": "20:03:31",
         "date": "2021-03-15",
         "kundenname": "APG\u00a6SGA",
@@ -74,13 +74,13 @@
         "c50": "{{Blank}}",
         "c51": "{{Blank}}",
         "c52": "{{Blank}}",
-        "campaign_id": "00001013"
+        "campaign_id": "00001012"
     },
     {
         "lang": "fr",
         "render-status": "done",
         "target": "Final_1080p",
-        "output": "00001013_CRE_1080p",
+        "output": "00001012_CRE_1080p",
         "time": "20:03:31",
         "date": "2021-03-15",
         "kundenname": "APG\u00a6SGA",
@@ -151,13 +151,13 @@
         "c50": "{{Blank}}",
         "c51": "{{Blank}}",
         "c52": "{{Blank}}",
-        "campaign_id": "00001013"
+        "campaign_id": "00001012"
     },
     {
         "lang": "fr",
         "render-status": "done",
         "target": "Final_4K",
-        "output": "00001013_CRE_2160p",
+        "output": "00001012_CRE_2160p",
         "time": "20:03:31",
         "date": "2021-03-15",
         "kundenname": "APG\u00a6SGA",
@@ -228,13 +228,13 @@
         "c50": "{{Blank}}",
         "c51": "{{Blank}}",
         "c52": "{{Blank}}",
-        "campaign_id": "00001013"
+        "campaign_id": "00001012"
     },
     {
         "lang": "fr",
         "render-status": "done",
         "target": "Final_1080pPP",
-        "output": "00001013_CRE_Powerpoint",
+        "output": "00001012_CRE_Powerpoint",
         "time": "20:03:31",
         "date": "2021-03-15",
         "kundenname": "APG\u00a6SGA",
@@ -305,13 +305,13 @@
         "c50": "{{Blank}}",
         "c51": "{{Blank}}",
         "c52": "{{Blank}}",
-        "campaign_id": "00001013"
+        "campaign_id": "00001012"
     },
     {
         "lang": "fr",
         "render-status": "done",
         "target": "Final_1080pYT",
-        "output": "00001013_CRE_YouTube",
+        "output": "00001012_CRE_YouTube",
         "time": "20:03:31",
         "date": "2021-03-15",
         "kundenname": "APG\u00a6SGA",
@@ -382,6 +382,6 @@
         "c50": "{{Blank}}",
         "c51": "{{Blank}}",
         "c52": "{{Blank}}",
-        "campaign_id": "00001013"
+        "campaign_id": "00001012"
     }
 ]

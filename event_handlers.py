@@ -2,6 +2,7 @@ import configparser
 from utils import is_image
 import PySimpleGUI as sg
 
+
 def write_config(config):
     with open('app.ini', "w") as configFile:
         config.write(configFile)
@@ -32,6 +33,15 @@ def main_event_handler(event,values, window, services):
     if event == "-autostart-":
         config["APP"]["automaticallystart"] = str(values[event])
         write_config(config)
+    keys = [
+    "lastcampaign_code",
+    "lastcampaign_date",
+    "syncjson",
+    "sync_folder"
+    ]
+    for key in keys:
+        to_update = window.find_element(key)
+        to_update.update(config["APP"][key])
 
 def general_settings_event_handler(event,values, window):
     config = get_config()

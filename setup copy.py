@@ -10,13 +10,9 @@ from setuptools import setup
 APP = ['main.py']
 DATA_FILES = []
 OPTIONS = {
-    'iconfile': 'apg_logo.icns',
-    'argv_emulation': False,
-    'site_packages': True,
-    'plist': {
-        'CFBundleName': 'Support app',
-    }
-    }
+    'iconfile':'AnyConv.com__logo-main-white.icns',
+    'plist': {'CFBundleShortVersionString':'0.1.0',}
+}
 
 setup(
     app=APP,

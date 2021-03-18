@@ -1,6 +1,8 @@
 
 import PySimpleGUI as sg
 from event_handlers import get_config
+from output import apg_logo
+
 sg.theme('Dark Grey 5')
 sg.theme_input_background_color("darkgrey")
 sg.theme_button_color(("white", "black"))
@@ -57,5 +59,5 @@ def make_window():
         ]
     ]
     # Create the window
-    window = sg.Window("Settings", layout, margins=(0, 0))
+    window = sg.Window("Settings", layout, margins=(0, 0), icon=apg_logo)
     return window

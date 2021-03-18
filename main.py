@@ -19,6 +19,7 @@ from event_handlers import (
 )
 from utils import Services, get_config, write_config
 import threading
+from output import apg_logo
 
 
 init_config_file()
@@ -44,7 +45,7 @@ def display_errors():
 
 while True:
     display_errors()
-    event, values = window.read(timeout=1000)
+    event, values = window.read(timeout=100)
     # import pdb; pdb.set_trace()
 
     if current_window == "main":

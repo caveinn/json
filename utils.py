@@ -11,14 +11,17 @@ from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime, timedelta
 
+
 def get_config():
     config = configparser.ConfigParser()
     config.read("app.ini")
     return config
 
+
 def write_config(config):
     with open('app.ini', "w") as configFile:
         config.write(configFile)
+
 
 class Services():
     password = "@password1crealto"
@@ -42,14 +45,27 @@ class Services():
             tempftp.quit()
 
     def upload_remote(self, filename):
-        config = get_config()["DELIVERY"]
-        with FTP(config["server"], config["username"], config["password"]) as ftp:
-            ftp.cwd(config["delivery_path"])
-            render_folder = get_config()["AE"]["render"]
-            myfile = open(f"{render_folder}/{filename}.mp4", "rb")
-            ftp.storbinary(f"STOR {filename}.mp4", myfile)
-            myfile.close()
-            ftp.quit()
+
+        while True:
+            if get_config().getboolean("APP", "services_stopped"):
+                return
+            config = get_config()["DELIVERY"]
+            try:
+                with FTP(config["server"], config["username"], config["password"]) as ftp:
+                    ftp.cwd(config["delivery_path"])
+                    render_folder = get_config()["AE"]["render"]
+                    myfile = open(f"{render_folder}/{filename}.mp4", "rb")
+                    ftp.storbinary(f"STOR {filename}.mp4", myfile)
+                    myfile.close()
+                    ftp.quit()
+                break
+            except Exception as e:
+                config = get_config()
+                print(e)
+                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                    ", Error connecticting to delivery server" + str(e)
+                write_config(config)
+                time.sleep(20*60)
 
     def send_mail(self, firstname, lastname, filelink, expirydate, referenece, to_address):
         config = get_config()["EMAIL"]
@@ -96,34 +112,53 @@ class Services():
         path = get_config()["ADS"]["campaign_json_path"]
         os.makedirs(path, exist_ok=True)
         config = get_config()
-        with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
-            ftp.cwd(config["INCOMING"]["json_path"])
-            files = ftp.nlst()
+        while True:
+            if get_config().getboolean("APP", "services_stopped"):
+                return
+            try:
+                with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
+                    ftp.cwd(config["INCOMING"]["json_path"])
+                    files = ftp.nlst()
+                    print(files)
+                    if files == ['..', '.']:
+                        time_delay = int(
+                            get_config()["GENERAL"]["sync_interval"])
+                        time.sleep(time_delay*60)
+                        continue
 
-            self.save_files(files, ftp, path)
-            ftp.quit()
+                    self.save_files(files, ftp, path)
+                    ftp.quit()
+                    break
+            except Exception as e:
+                config = get_config()
+                print(e)
+                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                    ", Error connecticting to json server" + str(e)
+                write_config(config)
+                time.sleep(20*60)
 
     def download_ads(self):
         print("Downloading ads")
         if get_config().getboolean("APP", "services_stopped"):
             return
-        # try:
-        folder = get_config()["ADS"]["ads"]
-        os.makedirs(folder, exist_ok=True)
-        config = get_config()
-        with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
-            ftp.cwd(config["INCOMING"]["ads_path"])
-            files = ftp.nlst()
-            self.save_files(files, ftp, folder)
-            print(f"working dir at start = {folder}")
-            ftp.quit()
-        # except Exception as e:
-        #     config = get_config()
-        #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + "," + str(e)
-        #     write_config(config)
+        try:
+            folder = get_config()["ADS"]["ads"]
+            os.makedirs(folder, exist_ok=True)
+            config = get_config()
+            with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
+                ftp.cwd(config["INCOMING"]["ads_path"])
+                files = ftp.nlst()
+                self.save_files(files, ftp, folder)
+                print(f"working dir at start = {folder}")
+                ftp.quit()
+        except Exception as e:
+            config = get_config()
+            config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                "," + str(e)
+            write_config(config)
 
     def check_json(self):
-        # try:
+        try:
             while True:
                 if get_config().getboolean("APP", "services_stopped"):
                     return
@@ -141,11 +176,12 @@ class Services():
                                 all_done = False
                                 break
                 self.replace()
-        # except Exception as e:
-        #     config = get_config()
-        #     print(e)
-        #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + "," + str(e)
-        #     write_config(config)
+        except Exception as e:
+            config = get_config()
+            print(e)
+            config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                "," + str(e)
+            write_config(config)
 
     def get_json_data(self, json_file_path):
         with open(json_file_path) as json_file:
@@ -169,12 +205,15 @@ class Services():
         while True:
             if get_config().getboolean("APP", "services_stopped"):
                 return
-            last_sync = datetime.strptime(get_config()["APP"]["syncjson"], "%d.%m.%Y@%I:%M%p")
-            print("Last sync",last_sync )
+            last_sync = datetime.strptime(
+                get_config()["APP"]["syncjson"], "%d.%m.%Y @ %I:%M%p")
+            print("Last sync", last_sync)
             sync_interval = int(get_config()["GENERAL"]["sync_interval"])
-            if (last_sync + timedelta(minutes =sync_interval)) > datetime.now():
+            if (last_sync + timedelta(minutes=sync_interval)) > datetime.now():
                 print("sleeping")
                 time.sleep(sync_interval * 60)
+            time_dealy = int(get_config()["GENERAL"]["sync_interval"])
+            time.sleep(time_dealy * 60)
             self.download_json()
             if get_config().getboolean("APP", "services_stopped"):
                 return
@@ -183,10 +222,11 @@ class Services():
                 return
             config = get_config()
             print("Writing sync time")
-            config["GENERAL"]["syncjson"] = datetime.now().strftime("%d.%m.%Y@%I:%M%p")
-            config["GENERAL"]["sync_folder"] = datetime.now().strftime("%d.%m.%Y@%I:%M%p")
+            config["GENERAL"]["syncjson"] = datetime.now().strftime(
+                "%d.%m.%Y @ %I:%M%p")
+            config["GENERAL"]["sync_folder"] = datetime.now().strftime(
+                "%d.%m.%Y @ %I:%M%p")
             write_config(config)
-
 
     def replace(self):
         if not get_config().getboolean("APP", "services_stopped"):
@@ -198,18 +238,20 @@ class Services():
             for f in processed_files:
                 del_path = os.path.join(processed, f)
                 # check if mp4 is created and send it to ftp
-                json_data ={}
+                json_data = {}
                 if del_path.endswith(".json"):
                     json_data = self.get_json_data(del_path)
                 else:
                     continue
                 print(json_data)
+                deliverd_campaign = ""
                 for i in json_data:
                     print("json.data")
                     if i.get("render-status") == "ready":
-                        video_file =os.path.join(get_config()["AE"]["render"], f"{i['output']}.mp4")
+                        video_file = os.path.join(
+                            get_config()["AE"]["render"], f"{i['output']}.mp4")
                         # link = f"https://{get_config()['DELIVERY']['server']}/{i['output']}.mp4"
-                        link_base  = get_config()["EMAIL"]["delivery_link"]
+                        link_base = get_config()["EMAIL"]["delivery_link"]
                         link = f"{link_base}{i['output']}.mp4"
                         while not os.path.isfile(video_file):
                             print("waiting for video file")
@@ -222,7 +264,8 @@ class Services():
                                 if get_config().getboolean("APP", "services_stopped"):
                                     return
                                 if (time.time() - os.path.getmtime(video_file)) < 120:
-                                    print(time.time() - os.path.getmtime(video_file))
+                                    print(time.time() -
+                                          os.path.getmtime(video_file))
                                     print("waiting for video file modified")
                                     time.sleep(120)
                                     continue
@@ -232,10 +275,19 @@ class Services():
                             self.upload_remote(i['output'])
                             print("sending email")
 
-                            post_date = datetime.strptime(i.get("date"), "%Y-%m-%d")
-                            days_delta =int(get_config()["GENERAL"]["online_availability_duration"])
-                            expiry_date = post_date + timedelta(days=days_delta)
-                            self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,expiry_date.strftime("%d.%m.%Y"),i.get("reference", ""),i.get("email-delivery", ""))
+                            post_date = datetime.strptime(
+                                i.get("date"), "%Y-%m-%d")
+                            days_delta = int(
+                                get_config()["GENERAL"]["online_availability_duration"])
+                            expiry_date = post_date + \
+                                timedelta(days=days_delta)
+                            config = get_config()
+                            config["APP"]["lastcampaign_code"] = i.get(
+                                "campaign_id")
+                            config["APP"]["lastcampaign_date"] = datetime.now().strftime(
+                                "%d.%m.%Y @ %I:%M%p")
+                            write_config(config)
+                            # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,expiry_date.strftime("%d.%m.%Y"),i.get("reference", ""),i.get("email-delivery", ""))
                             os.remove(video_file)
                             # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,expiry_date.strftime("%d-%m-%Y"),i.get("reference", ""),"caveinncicad@gmail.com")
                             # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,i.get("date"),i.get("reference", ""),i.get("email-delivery", ""))
@@ -257,27 +309,51 @@ class Services():
                 self.download_ads()
                 config = get_config()
                 print("writing config")
-                config["APP"]["syncjson"] = datetime.now().strftime("%d.%m.%Y@%I:%M%p")
-                config["APP"]["sync_folder"] = datetime.now().strftime("%d.%m.%Y@%I:%M%p")
+                config["APP"]["syncjson"] = datetime.now().strftime(
+                    "%d.%m.%Y @ %I:%M%p")
+                config["APP"]["sync_folder"] = datetime.now().strftime(
+                    "%d.%m.%Y @ %I:%M%p")
                 write_config(config)
                 print("config written")
-
 
             path = get_config()["ADS"]["campaign_json_path"]
             name = get_config()["ADS"]["ae_file"]
 
             if data:
-                print("data",data)
+                print("data", data)
                 with open(name, "w") as json_file:
                     json.dump(data, json_file, indent=4)
         else:
             return
 
+    def mantainance(self):
+        while True:
+            if get_config().getboolean("APP", "services_stopped"):
+                                    return
+            config = get_config()["DELIVERY"]
+            with FTP(config["server"], config["username"], config["password"]) as ftp:
+                ftp.cwd(config["delivery_path"])
+                for filename in ftp.nlst():
+                    if filename != "." and filename != filename != "..":
+                        mod_time_str = ftp.sendcmd('MDTM '+filename)
+                        mod_time = datetime.strptime(mod_time_str[4:], "%Y%m%d%H%M%S")
+                        days_to_expiry =  int(get_config["GENERAL"]["online_availability_duration"])
+                        if mod_time + timedelta(days=days_to_expiry+1) < datetime.now():
+                            ftp.delete(filename)
+                ftp.quit()
+        #run every 2 hrs
+        time.sleep(2*60*60)
+
+
+
     def run_services(self):
         self.json_thread = threading.Thread(target=self.check_json)
+        self.json_thread.daemon = True
         self.json_thread.start()
-        # self.sync_thread = threading.Thread(target=self.sync_files)
-        # self.sync_thread.start()
+        self.mantainance_thread = threading.Thread(target=self.mantainance)
+        self.mantainance_thread.daemon = True
+        self.mantainance_thread.start()
+
 
 
 def is_image(path):
@@ -352,7 +428,7 @@ Best Regards, your APGS|SGA Ad eMotion Team
         "json_path": "a/storage/private/json",
         "ads_path": "a/storage/private/Ads"
     }
-    config["ERRORS"] ={
+    config["ERRORS"] = {
         "json_error": ""
     }
 
