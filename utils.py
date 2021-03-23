@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime, timedelta
+import shutil
 
 
 def get_config():
@@ -61,7 +62,7 @@ class Services():
                 break
             except Exception as e:
                 config = get_config()
-                print(e)
+                print( "Error connecticting to delivery server" + str(e))
                 config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
                     ", Error connecticting to delivery server" + str(e)
                 write_config(config)
@@ -78,9 +79,7 @@ class Services():
         msg.attach(MIMEText(message))
         mailserver = smtplib.SMTP(config["server"])
         mailserver.ehlo()
-        # secure our email with tls encryption
         mailserver.starttls()
-        # re-identify ourselves as an encrypted connection
         mailserver.ehlo()
         mailserver.login(config["username"], config["password"])
         a = mailserver.sendmail(config['adress'], to_address, msg.as_string())
@@ -154,12 +153,12 @@ class Services():
         except Exception as e:
             config = get_config()
             config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-                "," + str(e)
+                ", error downloading ads" + str(e)
             write_config(config)
 
     def check_json(self):
-        try:
-            while True:
+        while True:
+            try:
                 if get_config().getboolean("APP", "services_stopped"):
                     return
                 name = get_config()["ADS"]["ae_file"]
@@ -176,12 +175,13 @@ class Services():
                                 all_done = False
                                 break
                 self.replace()
-        except Exception as e:
-            config = get_config()
-            print(e)
-            config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-                "," + str(e)
-            write_config(config)
+            except Exception as e:
+                config = get_config()
+                print(e)
+                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                    ",Error downloading Json" + str(e)
+                write_config(config)
+                time.sleep(20*60)
 
     def get_json_data(self, json_file_path):
         with open(json_file_path) as json_file:
@@ -243,7 +243,6 @@ class Services():
                     json_data = self.get_json_data(del_path)
                 else:
                     continue
-                print(json_data)
                 deliverd_campaign = ""
                 for i in json_data:
                     print("json.data")
@@ -287,13 +286,13 @@ class Services():
                             config["APP"]["lastcampaign_date"] = datetime.now().strftime(
                                 "%d.%m.%Y @ %I:%M%p")
                             write_config(config)
-                            # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,expiry_date.strftime("%d.%m.%Y"),i.get("reference", ""),i.get("email-delivery", ""))
+                            self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,expiry_date.strftime("%d.%m.%Y"),i.get("reference", ""),i.get("email-delivery", ""))
                             os.remove(video_file)
                             # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,expiry_date.strftime("%d-%m-%Y"),i.get("reference", ""),"caveinncicad@gmail.com")
                             # self.send_mail(i.get("user_firstname", ""),i.get("user_lastname", ""),link,i.get("date"),i.get("reference", ""),i.get("email-delivery", ""))
-                print(f"deleting {f}")
-                os.remove(del_path)
-                self.delete_remote(f)
+                    print(f"deleting {del_path}")
+                    os.remove(del_path)
+                    self.delete_remote(f)
             curr_path = ''
             campaign = self.get_campaign()
             print("replacing campaign")
@@ -328,21 +327,49 @@ class Services():
 
     def mantainance(self):
         while True:
-            if get_config().getboolean("APP", "services_stopped"):
-                                    return
-            config = get_config()["DELIVERY"]
-            with FTP(config["server"], config["username"], config["password"]) as ftp:
-                ftp.cwd(config["delivery_path"])
-                for filename in ftp.nlst():
-                    if filename != "." and filename != filename != "..":
-                        mod_time_str = ftp.sendcmd('MDTM '+filename)
-                        mod_time = datetime.strptime(mod_time_str[4:], "%Y%m%d%H%M%S")
-                        days_to_expiry =  int(get_config["GENERAL"]["online_availability_duration"])
-                        if mod_time + timedelta(days=days_to_expiry+1) < datetime.now():
-                            ftp.delete(filename)
-                ftp.quit()
-        #run every 2 hrs
-        time.sleep(2*60*60)
+            try:
+                if get_config().getboolean("APP", "services_stopped"):
+                                        return
+                config = get_config()["DELIVERY"]
+                with FTP(config["server"], config["username"], config["password"]) as ftp:
+                    ftp.cwd(config["delivery_path"])
+                    for filename in ftp.nlst():
+                        if filename != "." and filename != filename != "..":
+                            mod_time_str = ftp.sendcmd('MDTM '+filename)
+                            mod_time = datetime.strptime(mod_time_str[4:], "%Y%m%d%H%M%S")
+                            days_to_expiry =  int(get_config()["GENERAL"]["online_availability_duration"])
+                            if mod_time + timedelta(days=days_to_expiry+1) < datetime.now():
+                                ftp.delete(filename)
+                    ftp.quit()
+                master_folder = get_config()["AE"]["backup_path"]
+                files = os.listdir(master_folder)
+                for i in files:
+                    created_on = os.stat(os.path.join(master_folder, i)).st_ctime
+                    created_on_date = datetime.fromtimestamp(created_on)
+                    created_on_date = datetime.fromtimestamp(created_on)
+                    print(created_on_date)
+                    days_to_expiry =  int(get_config()["GENERAL"]["master_availability_duration"])
+                    print(days_to_expiry)
+                    if created_on_date + timedelta(days=days_to_expiry+1) < datetime.now():
+                        print(True)
+                        file_path = os.path.join(master_folder, i)
+                        print(file_path)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+                        else:
+                            shutil.rmtree(file_path)
+            except Exception as e:
+                config = get_config()
+                print("Mantainance error",str(e))
+                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                    ", Mantainance error" + str(e)
+                write_config(config)
+                time.sleep(20*60)
+                # time.sleep(2)
+
+            #run every 2 hrs
+            time.sleep(2*60*60)
+            # time.sleep(2)
 
 
 

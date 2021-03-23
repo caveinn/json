@@ -14,7 +14,7 @@ OPTIONS = {
     'argv_emulation': False,
     'site_packages': True,
     'plist': {
-        'CFBundleName': 'Support app',
+        'CFBundleName': 'APG LINK',
     }
     }
 

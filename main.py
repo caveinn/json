@@ -32,6 +32,10 @@ my_service = Services()
 #     my_service.run_services()
 
 config = get_config()
+stopped = config.getboolean("APP","services_stopped")
+if not stopped:
+    my_service.run_services()
+
 
 def display_errors():
     try:
@@ -131,6 +135,8 @@ while True:
     if event == sg.WIN_CLOSED or event == 'Exit':
         window.close()
         break
+
+config = get_config()
 stopped = config.getboolean("APP","services_stopped")
 config["APP"]["services_stopped"] = str(True)
 write_config(config)
