@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime, timedelta
 import shutil
+import pysftp
 
 
 def get_config():
@@ -40,10 +41,16 @@ class Services():
 
     def delete_remote(self, filename,):
         config = get_config()["INCOMING"]
-        with FTP(config["server"], config["username"], config["password"]) as tempftp:
-            tempftp.cwd(config["json_path"])
-            tempftp.delete(filename)
-            tempftp.quit()
+        if get_config()["INCOMING"]['protocal'] =="FTP":
+            with FTP(config["server"], config["username"], config["password"]) as tempftp:
+                tempftp.cwd(config["json_path"])
+                tempftp.delete(filename)
+                tempftp.quit()
+        elif get_config()["INCOMING"]['protocal'] =="sFTP":
+            with pysftp.Connection(config["server"], username=config["usernmame"], private_key=cofing["private_key"]) as sftp:
+                sftp.cwd(config["json_path"])
+                sftp.remove(filename)
+                sftp.close()
 
     def upload_remote(self, filename):
 
@@ -52,14 +59,23 @@ class Services():
                 return
             config = get_config()["DELIVERY"]
             try:
-                with FTP(config["server"], config["username"], config["password"]) as ftp:
-                    ftp.cwd(config["delivery_path"])
-                    render_folder = get_config()["AE"]["render"]
-                    myfile = open(f"{render_folder}/{filename}.mp4", "rb")
-                    ftp.storbinary(f"STOR {filename}.mp4", myfile)
-                    myfile.close()
-                    ftp.quit()
-                break
+                if config["protcal"] == "FTP":
+                    with FTP(config["server"], config["username"], config["password"]) as ftp:
+                        ftp.cwd(config["delivery_path"])
+                        render_folder = get_config()["AE"]["render"]
+                        myfile = open(f"{render_folder}/{filename}.mp4", "rb")
+                        ftp.storbinary(f"STOR {filename}.mp4", myfile)
+                        myfile.close()
+                        ftp.quit()
+                    break
+                elif config["protcal"] == "sFTP":
+                    with pysftp.Connection("apg-ademotions.what.digital", username="root", private_key="./marco-ademotions.pem") as sftp:
+                        sftp.cwd(config["delivery_path"])
+                        render_folder = get_config()["AE"]["render"]
+                        myfile = os.path.join(render_folder,f"{filaname}.mp4")
+                        sftp.put(myfile)
+                    break
+
             except Exception as e:
                 config = get_config()
                 print( "Error connecticting to delivery server" + str(e))
@@ -85,7 +101,7 @@ class Services():
         a = mailserver.sendmail(config['adress'], to_address, msg.as_string())
         mailserver.quit()
 
-    def save_files(self, files, ftp, parent):
+    def save_files_from_ftp(self, files, ftp, parent):
         if get_config().getboolean("APP", "services_stopped"):
             return
         for file in files:
@@ -102,8 +118,14 @@ class Services():
                 os.makedirs(new_parent, exist_ok=True)
                 ftp.cwd(file)
                 new_files = ftp.nlst()
-                self.save_files(new_files, ftp, new_parent)
+                self.save_files_from_ftp(new_files, ftp, new_parent)
                 ftp.cwd("..")
+
+    def save_files_from_sftp(self, files, sftp, parent):
+        if get_config().getboolean("APP", "services_stopped"):
+            return
+        if
+
 
     def download_json(self):
         if get_config().getboolean("APP", "services_stopped"):
@@ -125,7 +147,7 @@ class Services():
                         time.sleep(time_delay*60)
                         continue
 
-                    self.save_files(files, ftp, path)
+                    self.save_files_from_ftp(files, ftp, path)
                     ftp.quit()
                     break
             except Exception as e:
@@ -147,7 +169,7 @@ class Services():
             with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
                 ftp.cwd(config["INCOMING"]["ads_path"])
                 files = ftp.nlst()
-                self.save_files(files, ftp, folder)
+                self.save_files_from_ftp(files, ftp, folder)
                 print(f"working dir at start = {folder}")
                 ftp.quit()
         except Exception as e:

@@ -6,4 +6,4 @@ pip install -r requirements.txt;
 python setup.py py2app;
 cp -r -f dist/APG\ LINK.app ~/Desktop;
 deactivate;
-rm -rf env;
+# rm -rf env;
