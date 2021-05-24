@@ -81,10 +81,21 @@ def email_settings_event_handler(event,values, window):
            config["EMAIL"][k] = v if  v else config["EMAIL"][k]
     write_config(config)
 
-def incoming_settings_event_handler(event, values, widnow):
+def incoming_settings_event_handler(event, values, window):
+    print(event, values)
     config = get_config()
+    if event == "protocal":
+        print(values)
+        window.Element("server_ident").Update("FTP Server:" if values["protocal"]  == 'FTP' else "sFTP server")
+        window.Element("private_key_path").Update(disabled=values["protocal"]  == 'FTP' )
+        window.Element("password").Update(disabled=not values["protocal"]  == 'FTP')
     if event == "save":
-       for k,v in values.items():
+        if not values['private_key_path'].endswith('pem') and values['protocal'] == 'sFTP':
+            config["ERRORS"]["json_error"] += "\n Kindly provide a private key file of .pem"
+            write_config(config)
+            return
+
+        for k,v in values.items():
            config["INCOMING"][k] = v if v else config["INCOMING"][k]
     write_config(config)
 

@@ -14,7 +14,6 @@ import shutil
 import pysftp
 
 
-
 def get_config():
     config = configparser.ConfigParser()
     config.read("app.ini")
@@ -42,20 +41,18 @@ class Services():
 
     def delete_remote(self, filename,):
         config = get_config()["INCOMING"]
-        if config()["protacal"] == "FTP":
+        if get_config()["INCOMING"]['protocal'] =="FTP":
             with FTP(config["server"], config["username"], config["password"]) as tempftp:
                 tempftp.cwd(config["json_path"])
                 tempftp.delete(filename)
                 tempftp.quit()
-        elif config()["protocal"] == "sFTP":
+        elif get_config()["INCOMING"]['protocal'] =="sFTP":
             with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
                 sftp.cwd(config["json_path"])
                 sftp.remove(filename)
                 sftp.close()
 
-
     def upload_remote(self, filename):
-
         while True:
             if get_config().getboolean("APP", "services_stopped"):
                 return
@@ -70,8 +67,8 @@ class Services():
                         myfile.close()
                         ftp.quit()
                     break
-                elif config()["protocal"] == "sFTP":
-                    with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
+                elif config["protcal"] == "sFTP":
+                    with pysftp.Connection("apg-ademotions.what.digital", username="root", private_key="./marco-ademotions.pem") as sftp:
                         sftp.cwd(config["delivery_path"])
                         render_folder = get_config()["AE"]["render"]
                         myfile = os.path.join(render_folder,f"{filename}.mp4")
@@ -85,7 +82,6 @@ class Services():
                     ", Error connecticting to delivery server" + str(e)
                 write_config(config)
                 time.sleep(20*60)
-
 
     def send_mail(self, firstname, lastname, filelink, expirydate, referenece, to_address):
         config = get_config()["EMAIL"]
@@ -104,7 +100,7 @@ class Services():
         a = mailserver.sendmail(config['adress'], to_address, msg.as_string())
         mailserver.quit()
 
-    def save_files(self, files, ftp, parent):
+    def save_files_from_ftp(self, files, ftp, parent):
         if get_config().getboolean("APP", "services_stopped"):
             return
         for file in files:
@@ -121,7 +117,24 @@ class Services():
                 os.makedirs(new_parent, exist_ok=True)
                 ftp.cwd(file)
                 new_files = ftp.nlst()
-                self.save_files(new_files, ftp, new_parent)
+                self.save_files_from_ftp(new_files, ftp, new_parent)
+                ftp.cwd("..")
+
+    # def save_files_from_sftp(self, files, sftp, parent):
+    #     if get_config().getboolean("APP", "services_stopped"):
+    #         return
+    #     for file in files:
+    #         if sftp.isfile(file):
+    #             local_file = os.path.join(parent, file)
+    #             if os.path.exists(local_file):
+    #                 continue
+    #             sftp.get(file, localfile)
+    #         elif file != "." and file != "..":
+    #             new_parent = os.path.join(parent, file)
+    #             os.makedirs(new_parent, exist_ok=True)
+    #             ftp.cwd(file)
+    #             new_files = ftp.nlst()
+    #             self.save_files_from_ftp(new_files, ftp, new_parent)
                 ftp.cwd("..")
 
 
@@ -135,7 +148,12 @@ class Services():
             if get_config().getboolean("APP", "services_stopped"):
                 return
             try:
-                if config["INCOMING"]['protocal'] == "FTP":
+                config = get_config()
+                print("Writing sync time")
+                config["GENERAL"]["syncjson"] = datetime.now().strftime(
+                    "%d.%m.%Y @ %I:%M%p")
+                write_config(config)
+                if get_config()["INCOMING"]["protocal"] == "FTP":
                     with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
                         ftp.cwd(config["INCOMING"]["json_path"])
                         files = ftp.nlst()
@@ -146,21 +164,14 @@ class Services():
                             time.sleep(time_delay*60)
                             continue
 
-                        self.save_files(files, ftp, path)
+                        self.save_files_from_ftp(files, ftp, path)
                         ftp.quit()
                         break
-                elif config["INCOMING"]['protocal'] == "sFTP":
-                    config=config["INCOMING"]
-                    with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config("json_path"))
-                        files = sftp.listdir()
-                        if not files:
-                            time_delay = int(
-                                get_config()["GENERAL"]["sync_interval"])
-                            time.sleep(time_delay*60)
-                            continue
-                        sftp.get_d('./', path,preserve_mtime=True)
-                        sftp.close()
+                #download json from sftp
+                elif get_config()["INCOMING"]["protocal"] == "sFTP":
+                    with pysftp.Connection("apg-ademotions.what.digital", username="root", private_key="./marco-ademotions.pem") as sftp:
+                        sftp.get_r(config["INCOMING"]["json_path"],get_config()["ADS"]["campaign_json_path"])
+
 
             except Exception as e:
                 config = get_config()
@@ -175,22 +186,19 @@ class Services():
         if get_config().getboolean("APP", "services_stopped"):
             return
         try:
-            folder = get_config()["ADS"]["ads"]
-            os.makedirs(folder, exist_ok=True)
-            config = get_config()
-            if config["INCOMING"]["protocal"] == "FTP":
+            if get_config()["INCOMING"]["protocal"] == "FTP":
+                folder = get_config()["ADS"]["ads"]
+                os.makedirs(folder, exist_ok=True)
+                config = get_config()
                 with FTP(config["INCOMING"]["server"], config["INCOMING"]["username"], config["INCOMING"]["password"]) as ftp:
                     ftp.cwd(config["INCOMING"]["ads_path"])
                     files = ftp.nlst()
-                    self.save_files(files, ftp, folder)
+                    self.save_files_from_ftp(files, ftp, folder)
+                    print(f"working dir at start = {folder}")
                     ftp.quit()
-            elif config["INCOMING"]["protocal"] == "sFTP":
-                config=config["INCOMING"]
-                with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config("json_path"))
-                        sftp.get_d('./', folder,preserve_mtime=True)
-                        sftp.close()
-
+            elif get_config()["INCOMING"]["protocal"] == "sFTP":
+                with pysftp.Connection("apg-ademotions.what.digital", username="root", private_key="./marco-ademotions.pem") as sftp:
+                        sftp.get_r(config["INCOMING"]["json_path"],get_config()["ADS"]["campaign_json_path"])
         except Exception as e:
             config = get_config()
             config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
@@ -372,27 +380,16 @@ class Services():
                 if get_config().getboolean("APP", "services_stopped"):
                                         return
                 config = get_config()["DELIVERY"]
-                if config["protocal"] == "FTP":
-                    with FTP(config["server"], config["username"], config["password"]) as ftp:
-                        ftp.cwd(config["delivery_path"])
-                        for filename in ftp.nlst():
-                            if filename != "." and filename != filename != "..":
-                                mod_time_str = ftp.sendcmd('MDTM '+filename)
-                                mod_time = datetime.strptime(mod_time_str[4:], "%Y%m%d%H%M%S")
-                                days_to_expiry =  int(get_config()["GENERAL"]["online_availability_duration"])
-                                if mod_time + timedelta(days=days_to_expiry+1) < datetime.now():
-                                    ftp.delete(filename)
-                        ftp.quit()
-                elif config["protocal"] == "sFTP":
-                    with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config["delivery_path"])
-                        for attr in sftp.listdir_attr():
-                            modDate = datetime.fromtimestamp(attr.st_mtime)
+                with FTP(config["server"], config["username"], config["password"]) as ftp:
+                    ftp.cwd(config["delivery_path"])
+                    for filename in ftp.nlst():
+                        if filename != "." and filename != filename != "..":
+                            mod_time_str = ftp.sendcmd('MDTM '+filename)
+                            mod_time = datetime.strptime(mod_time_str[4:], "%Y%m%d%H%M%S")
                             days_to_expiry =  int(get_config()["GENERAL"]["online_availability_duration"])
-                            if modDate + timedelta(days=days_to_expiry+1) < datetime.now():
-                                sftp.remove(attr.filename)
-
-
+                            if mod_time + timedelta(days=days_to_expiry+1) < datetime.now():
+                                ftp.delete(filename)
+                    ftp.quit()
                 master_folder = get_config()["AE"]["backup_path"]
                 files = os.listdir(master_folder)
                 for i in files:
@@ -505,8 +502,7 @@ Best Regards, your APGS|SGA Ad eMotion Team
         "username": "devapg@visualsplus.ch",
         "password": "@password1crealto",
         "json_path": "a/storage/private/json",
-        "ads_path": "a/storage/private/Ads",
-
+        "ads_path": "a/storage/private/Ads"
     }
     config["ERRORS"] = {
         "json_error": ""
