@@ -36,10 +36,14 @@ def make_window():
 
     info_column = [
         [sg.Text("Select Protocal: "), sg.DD(values=["sFTP", "FTP"], default_value=config["protocal"],key="protocal", enable_events=True)],
-        [sg.Text("FTP Server:", pad=((22, 5), (5, 5))), sg.I(config["server"], key="server",size=(30, 1))],
+        [sg.Text("FTP Server:" if config["protocal"] == 'FTP' else "sFTP server", pad=(
+            (22, 5), (5, 5)), key="server_ident"), sg.I(config["server"], key="server", size=(30, 1))],
         [sg.Text("Port:", pad=((57, 5), (5, 5))), sg.I(config["port"],key="port",size=(30, 1))],
         [sg.Text("Username:", pad=((30, 5), (5, 5))), sg.I(config["username"],key="username",size=(30, 1))],
         [sg.Text("Password:", pad=((32, 5), (5, 5))), sg.I(config["password"], key="password",size=(30, 1),password_char="*" )],
+        [sg.Text("path to private key" if not config.get("private_key_path") else config.get("private_key_path"), size=(40, 1), pad=(
+            (32, 5), (5, 5))), sg.FileBrowse("Private Key", disabled=config["protocal"] == 'FTP', key="private_key_path")],
+        [sg.T(pad=((0, 400), (70, 0)))],
         [sg.T(pad=((0, 400), (70, 0)))],
         [sg.T("File Delivery Path:"), sg.I(config["delivery_path"], key="delivery_path",size=(38, 1))],
         [sg.B("save", pad=((320,20), (160,5)))]
