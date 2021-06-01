@@ -42,13 +42,13 @@ class Services():
 
     def delete_remote(self, filename,):
         config = get_config()["INCOMING"]
-        if config()["protacal"] == "FTP":
+        if config["protocal"] == "FTP":
             with FTP(config["server"], config["username"], config["password"]) as tempftp:
                 tempftp.cwd(config["json_path"])
                 tempftp.delete(filename)
                 tempftp.quit()
-        elif config()["protocal"] == "sFTP":
-            with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
+        elif config["protocal"] == "sFTP":
+            with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
                 sftp.cwd(config["json_path"])
                 sftp.remove(filename)
                 sftp.close()
@@ -57,11 +57,11 @@ class Services():
     def upload_remote(self, filename):
 
         while True:
-            if get_config().getboolean("APP", "services_stopped"):
-                return
-            config = get_config()["DELIVERY"]
-            try:
-                if config["protcal"] == "FTP":
+                if get_config().getboolean("APP", "services_stopped"):
+                    return
+                config = get_config()["DELIVERY"]
+            # try:
+                if config["protocal"] == "FTP":
                     with FTP(config["server"], config["username"], config["password"]) as ftp:
                         ftp.cwd(config["delivery_path"])
                         render_folder = get_config()["AE"]["render"]
@@ -70,21 +70,21 @@ class Services():
                         myfile.close()
                         ftp.quit()
                     break
-                elif config()["protocal"] == "sFTP":
-                    with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
+                elif config["protocal"] == "sFTP":
+                    with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
                         sftp.cwd(config["delivery_path"])
                         render_folder = get_config()["AE"]["render"]
                         myfile = os.path.join(render_folder,f"{filename}.mp4")
                         sftp.put(myfile)
                     break
 
-            except Exception as e:
-                config = get_config()
-                print( "Error connecticting to delivery server" + str(e))
-                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-                    ", Error connecticting to delivery server" + str(e)
-                write_config(config)
-                time.sleep(20*60)
+            # except Exception as e:
+            #     config = get_config()
+            #     print( "Error connecticting to delivery server" + str(e))
+            #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+            #         ", Error connecticting to delivery server" + str(e)
+            #     write_config(config)
+            #     time.sleep(20*60)
 
 
     def send_mail(self, firstname, lastname, filelink, expirydate, referenece, to_address):
@@ -150,17 +150,18 @@ class Services():
                         ftp.quit()
                         break
                 elif config["INCOMING"]['protocal'] == "sFTP":
-                    config=config["INCOMING"]
-                    with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config("json_path"))
+                    icomingconfig=config["INCOMING"]
+                    with pysftp.Connection(icomingconfig["server"], username=icomingconfig["username"], private_key=icomingconfig["private_key_path"]) as sftp:
+                        sftp.cwd(icomingconfig["json_path"])
                         files = sftp.listdir()
-                        if not files:
+                        if files == ['..', '.']:
                             time_delay = int(
                                 get_config()["GENERAL"]["sync_interval"])
                             time.sleep(time_delay*60)
                             continue
                         sftp.get_d('./', path,preserve_mtime=True)
                         sftp.close()
+                        break
 
             except Exception as e:
                 config = get_config()
@@ -185,12 +186,12 @@ class Services():
                     self.save_files(files, ftp, folder)
                     ftp.quit()
             elif config["INCOMING"]["protocal"] == "sFTP":
-                config=config["INCOMING"]
-                with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config("json_path"))
+                incomingconfig=config["INCOMING"]
+                with pysftp.Connection(incomingconfig["server"], username=incomingconfig["username"], private_key=incomingconfig["private_key_path"]) as sftp:
+                        sftp.cwd(incomingconfig["ads_path"])
                         sftp.get_d('./', folder,preserve_mtime=True)
                         sftp.close()
-
+                        
         except Exception as e:
             config = get_config()
             config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
@@ -215,6 +216,7 @@ class Services():
                                 time.sleep(120)
                                 all_done = False
                                 break
+                print('replacing')
                 self.replace()
             except Exception as e:
                 config = get_config()
@@ -274,6 +276,7 @@ class Services():
             data = ''
             path = get_config()["ADS"]["campaign_json_path"]
             processed = os.path.join(path, 'processing',)
+            print(path)
             os.makedirs(processed, exist_ok=True)
             processed_files = os.listdir(processed)
             for f in processed_files:
@@ -384,7 +387,7 @@ class Services():
                                     ftp.delete(filename)
                         ftp.quit()
                 elif config["protocal"] == "sFTP":
-                    with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
+                    with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
                         sftp.cwd(config["delivery_path"])
                         for attr in sftp.listdir_attr():
                             modDate = datetime.fromtimestamp(attr.st_mtime)
@@ -419,9 +422,9 @@ class Services():
                 time.sleep(20*60)
                 # time.sleep(2)
 
-            #run every 2 hrs
+            # run every 2 hrs
             time.sleep(2*60*60)
-            # time.sleep(2)
+            time.sleep(2)
 
 
 

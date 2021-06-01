@@ -47,18 +47,18 @@ class Services():
                 tempftp.delete(filename)
                 tempftp.quit()
         elif get_config()["INCOMING"]['protocal'] =="sFTP":
-            with pysftp.Connection(config["server"], username=config["usernmame"], private_key=config["private_key_path"]) as sftp:
+            with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
                 sftp.cwd(config["json_path"])
                 sftp.remove(filename)
                 sftp.close()
 
     def upload_remote(self, filename):
         while True:
-            if get_config().getboolean("APP", "services_stopped"):
-                return
-            config = get_config()["DELIVERY"]
-            try:
-                if config["protcal"] == "FTP":
+                if get_config().getboolean("APP", "services_stopped"):
+                    return
+                config = get_config()["DELIVERY"]
+            # try:
+                if config["protocal"] == "FTP":
                     with FTP(config["server"], config["username"], config["password"]) as ftp:
                         ftp.cwd(config["delivery_path"])
                         render_folder = get_config()["AE"]["render"]
@@ -67,7 +67,7 @@ class Services():
                         myfile.close()
                         ftp.quit()
                     break
-                elif config["protcal"] == "sFTP":
+                elif config["protocal"] == "sFTP":
                     with pysftp.Connection("apg-ademotions.what.digital", username="root", private_key="./marco-ademotions.pem") as sftp:
                         sftp.cwd(config["delivery_path"])
                         render_folder = get_config()["AE"]["render"]
@@ -75,13 +75,13 @@ class Services():
                         sftp.put(myfile)
                     break
 
-            except Exception as e:
-                config = get_config()
-                print( "Error connecticting to delivery server" + str(e))
-                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-                    ", Error connecticting to delivery server" + str(e)
-                write_config(config)
-                time.sleep(20*60)
+            # except Exception as e:
+            #     config = get_config()
+            #     print( "Error connecticting to delivery server" + str(e))
+            #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+            #         ", Error connecticting to delivery server" + str(e)
+            #     write_config(config)
+            #     time.sleep(20*60)
 
     def send_mail(self, firstname, lastname, filelink, expirydate, referenece, to_address):
         config = get_config()["EMAIL"]
