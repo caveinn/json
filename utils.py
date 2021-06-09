@@ -49,7 +49,7 @@ class Services():
                 tempftp.quit()
         elif config["protocal"] == "sFTP":
             with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
-                sftp.cwd(config["json_path"])
+                sftp.chdir(config["json_path"])
                 sftp.remove(filename)
                 sftp.close()
 
@@ -57,10 +57,10 @@ class Services():
     def upload_remote(self, filename):
 
         while True:
-                if get_config().getboolean("APP", "services_stopped"):
-                    return
-                config = get_config()["DELIVERY"]
-            # try:
+            if get_config().getboolean("APP", "services_stopped"):
+                return
+            config = get_config()["DELIVERY"]
+            try:
                 if config["protocal"] == "FTP":
                     with FTP(config["server"], config["username"], config["password"]) as ftp:
                         ftp.cwd(config["delivery_path"])
@@ -72,19 +72,19 @@ class Services():
                     break
                 elif config["protocal"] == "sFTP":
                     with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config["delivery_path"])
+                        sftp.chdir(config["delivery_path"])
                         render_folder = get_config()["AE"]["render"]
                         myfile = os.path.join(render_folder,f"{filename}.mp4")
                         sftp.put(myfile)
                     break
 
-            # except Exception as e:
-            #     config = get_config()
-            #     print( "Error connecticting to delivery server" + str(e))
-            #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-            #         ", Error connecticting to delivery server" + str(e)
-            #     write_config(config)
-            #     time.sleep(20*60)
+            except Exception as e:
+                config = get_config()
+                print( "Error connecticting to delivery server" + str(e))
+                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+                    ", Error connecticting to delivery server" + str(e)
+                write_config(config)
+                time.sleep(20*60)
 
 
     def send_mail(self, firstname, lastname, filelink, expirydate, referenece, to_address):
@@ -152,7 +152,7 @@ class Services():
                 elif config["INCOMING"]['protocal'] == "sFTP":
                     icomingconfig=config["INCOMING"]
                     with pysftp.Connection(icomingconfig["server"], username=icomingconfig["username"], private_key=icomingconfig["private_key_path"]) as sftp:
-                        sftp.cwd(icomingconfig["json_path"])
+                        sftp.chdir(icomingconfig["json_path"])
                         files = sftp.listdir()
                         if files == ['..', '.']:
                             time_delay = int(
@@ -188,7 +188,8 @@ class Services():
             elif config["INCOMING"]["protocal"] == "sFTP":
                 incomingconfig=config["INCOMING"]
                 with pysftp.Connection(incomingconfig["server"], username=incomingconfig["username"], private_key=incomingconfig["private_key_path"]) as sftp:
-                        sftp.cwd(incomingconfig["ads_path"])
+                        print(incomingconfig["ads_path"])
+                        sftp.chdir(incomingconfig["ads_path"])
                         sftp.get_d('./', folder,preserve_mtime=True)
                         sftp.close()
                         
@@ -200,7 +201,7 @@ class Services():
 
     def check_json(self):
         while True:
-            try:
+            # try:
                 if get_config().getboolean("APP", "services_stopped"):
                     return
                 name = get_config()["ADS"]["ae_file"]
@@ -218,13 +219,13 @@ class Services():
                                 break
                 print('replacing')
                 self.replace()
-            except Exception as e:
-                config = get_config()
-                print(e)
-                config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-                    ",Error downloading Json" + str(e)
-                write_config(config)
-                time.sleep(20*60)
+            # except Exception as e:
+            #     config = get_config()
+            #     print(e)
+            #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+            #         ",Error downloading Json" + str(e)
+            #     write_config(config)
+            #     time.sleep(20*60)
 
     def get_json_data(self, json_file_path):
         with open(json_file_path) as json_file:
@@ -388,7 +389,7 @@ class Services():
                         ftp.quit()
                 elif config["protocal"] == "sFTP":
                     with pysftp.Connection(config["server"], username=config["username"], private_key=config["private_key_path"]) as sftp:
-                        sftp.cwd(config["delivery_path"])
+                        sftp.chdir(config["delivery_path"])
                         for attr in sftp.listdir_attr():
                             modDate = datetime.fromtimestamp(attr.st_mtime)
                             days_to_expiry =  int(get_config()["GENERAL"]["online_availability_duration"])

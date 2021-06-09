@@ -182,10 +182,10 @@ class Services():
                 time.sleep(20*60)
 
     def download_ads(self):
-        print("Downloading ads")
-        if get_config().getboolean("APP", "services_stopped"):
-            return
-        try:
+            print("Downloading ads")
+            if get_config().getboolean("APP", "services_stopped"):
+                return
+        # try:
             if get_config()["INCOMING"]["protocal"] == "FTP":
                 folder = get_config()["ADS"]["ads"]
                 os.makedirs(folder, exist_ok=True)
@@ -198,12 +198,13 @@ class Services():
                     ftp.quit()
             elif get_config()["INCOMING"]["protocal"] == "sFTP":
                 with pysftp.Connection("apg-ademotions.what.digital", username="root", private_key="./marco-ademotions.pem") as sftp:
-                        sftp.get_r(config["INCOMING"]["json_path"],get_config()["ADS"]["campaign_json_path"])
-        except Exception as e:
-            config = get_config()
-            config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
-                ", error downloading ads" + str(e)
-            write_config(config)
+                        sftp.get_r(get_config()["INCOMING"]["json_path"],get_config()["ADS"]["campaign_json_path"])
+        # except Exception as e:
+        #     config = get_config()
+        #     print()
+        #     config["ERRORS"]["json_error"] = config["ERRORS"]["json_error"] + \
+        #         ", error downloading ads" + str(e)
+        #     write_config(config)
 
     def check_json(self):
         while True:
